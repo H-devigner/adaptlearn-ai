@@ -4,6 +4,8 @@ Plateforme d’apprentissage adaptatif en français : comptes privés, cours Pyt
 
 Lire [EXPLICATION_PROJET.md](EXPLICATION_PROJET.md) pour comprendre le code et [docs/RAG.md](docs/RAG.md) pour configurer le RAG.
 
+Premier clonage : suivre le guide autonome [FIRST_CLONE_SETUP.md](FIRST_CLONE_SETUP.md).
+
 ## Lancer
 
 Pour un premier clonage, installer Git, Python 3.12 ou supérieur (3.12 recommandé) et [Ollama](https://docs.ollama.com/quickstart). Le lancement local utilise SQLite : Docker et PostgreSQL ne sont pas nécessaires.
@@ -101,6 +103,7 @@ La CI vérifie Python 3.12/3.14, PostgreSQL, Docker et le modèle multilingue. D
 
 ## Guides
 
+- [First-clone setup guide](FIRST_CLONE_SETUP.md)
 - [Agent handoff and conversation context](AGENT_CONTEXT.md)
 - [Explication et liste de vérification](EXPLICATION_PROJET.md)
 - [Détails du RAG](docs/RAG.md)

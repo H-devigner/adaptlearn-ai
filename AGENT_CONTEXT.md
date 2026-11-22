@@ -16,13 +16,14 @@ This file records every user request in this conversation and the substance of e
 - The user wants **simple, understandable code**, an application they can explain in a project progress presentation, and documentation they can review and correct.
 - The user explicitly requested a **real RAG**, suggested LangChain, asked for code simplification, and authorized pushing the changes to GitHub.
 - The user subsequently requested that the repository be made **public**. This was done and anonymous HTTP access returned 200. Do not treat the earlier private-repository answers as the current visibility.
-- No new application feature has been specified after the RAG delivery. The user has requested that this file remain a living conversation record for future agents; the latest question concerns setup from a fresh clone.
+- No new application feature has been specified after the RAG delivery. The user has requested that this file remain a living conversation record for future agents; the latest request saves the fresh-clone instructions in a separate guide.
 
 ### Read these existing documents instead of reconstructing the project
 
 | Document | Purpose |
 | --- | --- |
 | [README.md](README.md) | Installation, current stack, module map, test commands |
+| [FIRST_CLONE_SETUP.md](FIRST_CLONE_SETUP.md) | Standalone first-clone setup instructions |
 | [EXPLICATION_PROJET.md](EXPLICATION_PROJET.md) | Main French explanation for the user, algorithms and review checklist |
 | [docs/RAG.md](docs/RAG.md) | Current semantic RAG, configuration, local Ollama setup and limitations |
 | [docs/VERIFICATION.md](docs/VERIFICATION.md) | Actual test evidence and observed model-quality problems |
@@ -317,6 +318,19 @@ with connect(path) as db:
 - Explained that `.env`, the local database, index and weights are not cloned; initial model downloads require internet access. Later runs reuse the existing local files.
 - Provided the standard test command and the optional real RAG verification script. Small-model outputs still require educational review.
 - Updated the README's fresh-clone instructions and this ongoing record. This is a documentation-only change; it does not install a second copy or modify application behavior.
+
+### Exchange 14 — save setup steps in a separate Markdown file
+
+**User:**
+
+> ok write them into another md file
+
+**Assistant response:**
+
+- Created the standalone root-level guide `FIRST_CLONE_SETUP.md` with the setup steps from Exchange 13.
+- Included prerequisites, cloning, Python environment, Ollama, `.env`, embeddings download, launch, account creation, checks and later restarts, plus PowerShell alternatives and common setup problems.
+- Linked the guide from the README and the handoff's document map.
+- Recorded this exchange and published the documentation to the existing GitHub repository. No application behavior or private runtime configuration was changed.
 
 ## 4. Current implementation map for the next agent
 
