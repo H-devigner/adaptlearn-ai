@@ -86,6 +86,7 @@ La CI vérifie Python 3.12/3.14, PostgreSQL, Docker et le modèle multilingue. D
 
 ## Guides
 
+- [Agent handoff and conversation context](AGENT_CONTEXT.md)
 - [Explication et liste de vérification](EXPLICATION_PROJET.md)
 - [Détails du RAG](docs/RAG.md)
 - [Déploiement Docker et cloud](docs/DEPLOIEMENT.md)
