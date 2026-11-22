@@ -16,7 +16,7 @@ This file records every user request in this conversation and the substance of e
 - The user wants **simple, understandable code**, an application they can explain in a project progress presentation, and documentation they can review and correct.
 - The user explicitly requested a **real RAG**, suggested LangChain, asked for code simplification, and authorized pushing the changes to GitHub.
 - The user subsequently requested that the repository be made **public**. This was done and anonymous HTTP access returned 200. Do not treat the earlier private-repository answers as the current visibility.
-- No new application feature has been specified after the RAG delivery. The latest request is to save the conversation context in the GitHub project for a future agent.
+- No new application feature has been specified after the RAG delivery. The user has requested that this file remain a living conversation record for future agents.
 
 ### Read these existing documents instead of reconstructing the project
 
@@ -42,6 +42,7 @@ This file records every user request in this conversation and the substance of e
 6. Preserve accounts, user data and historical productions when evolving the application.
 7. Push the requested project work to the existing repository. Do not create another repository unless asked.
 8. The repository is public: never commit `.env`, passwords, API keys, private documents, database files, model weights or cached indexes.
+9. **Ongoing instruction:** record each subsequent user exchange in this file, preserving the user's request and a faithful summary of the assistant's answer, decisions and relevant implementation/test outcomes. Append entries in order, update current-state sections when facts change, and sync the updates to GitHub. Keep secrets redacted and do not mistake historical answers for current requirements. This instruction also applies to agents resuming the project from this handoff.
 
 ## 3. Complete chronological question-and-answer record
 
@@ -285,6 +286,19 @@ with connect(path) as db:
 - Created this root-level **`AGENT_CONTEXT.md`** and added a discoverable README link.
 - This documentation change does not alter application behavior. The final chat reply links to the published file.
 
+### Exchange 12 — keep recording future exchanges
+
+**User:**
+
+> ok from now on you are going to record in the file
+
+**Assistant response:**
+
+- Agreed to maintain `AGENT_CONTEXT.md` as an ongoing conversation record.
+- Recorded this instruction in the working agreement and added the current exchange.
+- Will append future user requests and answer summaries, record decisions and relevant project changes, and sync the updates to GitHub.
+- Application behavior is unchanged; this is a documentation-only update.
+
 ## 4. Current implementation map for the next agent
 
 Use source files and the linked guides as the authority for implementation details; the conversation explains why the choices were made.
@@ -397,3 +411,4 @@ Use these only if available in the next environment and applicable to the next t
 - [ ] Continue with the user's next requested improvement; no additional functional task is implicitly assigned by this handoff.
 - [ ] Preserve simple explanations, French UI, existing data, privacy checks and source attribution.
 - [ ] Update the explanatory documents and verify any requested GitHub publication.
+- [ ] Append the current exchange and its outcomes to this file, update changed facts, and sync the conversation record to GitHub.
