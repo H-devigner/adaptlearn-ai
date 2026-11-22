@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.title }}{% endblock %}
+{% block content %}
+<div class="page-heading"><p class="eyebrow">LEÇON PYTHON · {{ course.duration }} MIN ESTIMÉES</p><h1>{{ course.title }}.</h1><span class="pill">{{ course.level }}</span></div>
+<article class="panel lesson-content"><div class="plain-text">{{ course.content }}</div></article>
+<div class="actions"><a class="button" href="{{ url_for('learning.quiz', course_id=course.id) }}">Passer le quiz →</a><a class="text-link" href="{{ url_for('courses') }}">Retour au catalogue</a></div>
+{% endblock %}

@@ -10,9 +10,10 @@ class ApplicationTests(unittest.TestCase):
     def setUp(self):
         self.folder = tempfile.TemporaryDirectory()
         self.addCleanup(self.folder.cleanup)
-        self.config = {'TESTING': True, 'DATABASE': str(Path(self.folder.name) / 'test.sqlite')}
+        self.config = {'TESTING': True, 'SECRET_KEY': 'test-only', 'CSRF_ENABLED': False, 'DATABASE': str(Path(self.folder.name) / 'test.sqlite')}
         self.app = create_app(self.config)
         self.client = self.app.test_client()
+        self.client.post('/inscription', data={'username': 'sara', 'password': 'Une phrase test 123!'})
         self.profile = {'name': 'Sara', 'level': 'Débutant', 'goal': 'Apprendre Python'}
 
     def test_pages_accessibles_sans_profil(self):
@@ -25,6 +26,7 @@ class ApplicationTests(unittest.TestCase):
         response = self.client.post('/profil', data=self.profile)
         self.assertEqual(response.status_code, 302)
         other_client = create_app(self.config).test_client()
+        other_client.post('/connexion', data={'username': 'sara', 'password': 'Une phrase test 123!'})
         page = other_client.get('/profil').get_data(as_text=True)
         self.assertIn('Sara', page)
         self.assertIn('Apprendre Python', page)
@@ -41,7 +43,7 @@ class ApplicationTests(unittest.TestCase):
         self.client.post('/profil', data=self.profile)
         for field, value in [('name', '  '), ('name', 'a' * 81),
                              ('level', 'Expert inconnu'), ('goal', ''),
-                             ('goal', 'a' * 501)]:
+                             ('goal', 'a' * 501), ('name', 'Sara\x00'), ('goal', 'Python\x00')]:
             with self.subTest(field=field, value=value[:20]):
                 response = self.client.post('/profil', data={**self.profile, field: value})
                 self.assertEqual(response.status_code, 400)

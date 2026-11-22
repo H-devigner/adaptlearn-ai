@@ -1,0 +1,70 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      SECRET_KEY: ${SECRET_KEY:?Renseignez SECRET_KEY dans .env}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-adaptlearn}:${POSTGRES_PASSWORD:?Renseignez POSTGRES_PASSWORD dans .env}@db:5432/${POSTGRES_DB:-adaptlearn}
+      AI_SERVICE_URL: http://ai:8001
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?Renseignez AI_SERVICE_TOKEN dans .env}
+    ports:
+      - '127.0.0.1:5050:8000'
+    networks:
+      - app
+      - data
+    depends_on:
+      db:
+        condition: service_healthy
+      ai:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'python', '-c', "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/health', timeout=3).close()"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  ai:
+    build: .
+    restart: unless-stopped
+    command: ['gunicorn', '--bind', '0.0.0.0:8001', '--workers', '2', '--timeout', '75', 'ai_service:create_app()']
+    environment:
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?Renseignez AI_SERVICE_TOKEN dans .env}
+      AI_MODE: ${AI_MODE:-local}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_TIMEOUT: ${LLM_TIMEOUT:-45}
+    networks:
+      - app
+    healthcheck:
+      test: ['CMD', 'python', '-c', "from urllib.request import urlopen; urlopen('http://127.0.0.1:8001/health', timeout=3).close()"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-adaptlearn}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Renseignez POSTGRES_PASSWORD dans .env}
+      POSTGRES_DB: ${POSTGRES_DB:-adaptlearn}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+networks:
+  app:
+  data:
+    internal: true
+
+volumes:
+  postgres_data:

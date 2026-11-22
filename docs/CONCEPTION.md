@@ -1,6 +1,6 @@
 # AdaptLearn AI — proposition de conception
 
-Statut : conception acceptée le 22 novembre 2026. Étape 1 réalisée.
+Statut : conception acceptée le 22 novembre 2026. La demande suivante étend la livraison aux étapes 2 à 8. Voir `../EXPLICATION_PROJET.md` pour le fonctionnement actuel et les limites. Les sections ci-dessous conservent la conception initiale et son premier périmètre.
 
 ## Objectif
 

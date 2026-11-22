@@ -1,12 +1,12 @@
 # AdaptLearn AI
 
-Plateforme d’apprentissage adaptatif construite étape par étape pour un projet académique. L’objectif final est de personnaliser les parcours et de générer des contenus éducatifs avec des LLM et du RAG.
+Plateforme d’apprentissage adaptatif en français, développée progressivement avec un code Python organisé en modules simples. Elle associe cours, quiz, parcours personnalisés, recommandations, suivi de progression et génération de supports depuis des documents.
 
-**Livraison actuelle : étape 1 — profil apprenant et catalogue.**
+**Le document à lire pour vérifier et corriger le projet est [EXPLICATION_PROJET.md](EXPLICATION_PROJET.md).**
 
-## Lancer le projet
+## Démarrage local
 
-Python 3.10 ou supérieur recommandé (vérifié avec Python 3.14).
+Python 3.12 ou supérieur recommandé (tests prévus sur 3.12 et 3.14).
 
 ```bash
 git clone https://github.com/H-devigner/adaptlearn-ai.git
@@ -17,61 +17,83 @@ pip install -r requirements.txt
 python -m flask --app app run --port 5050
 ```
 
-Ouvrir http://127.0.0.1:5050. Arrêter avec `Ctrl+C`. Pour les prochains lancements, activer l’environnement puis relancer la dernière commande. La base SQLite est créée automatiquement dans `instance/` et conservée après arrêt.
+Ouvrir **http://127.0.0.1:5050**, créer un compte puis compléter le profil. Aucun compte ni mot de passe prédéfini. Le mode local fonctionne sans clé API. Les données sont conservées dans `instance/adaptlearn.sqlite`, exclu de Git.
 
-## Ce qui fonctionne
+Pour utiliser les versions exactes de l’environnement vérifié, installer `requirements-lock.txt` à la place de `requirements.txt` (inclut les dépendances de déploiement).
 
-- Accueil présentant le profil et l’état du projet.
-- Création et modification d’un profil : pseudonyme, niveau et objectif.
-- Validation côté serveur et messages d’erreur en français.
-- Persistance du profil dans SQLite.
-- Catalogue de cinq fiches de cours Python avec niveau, thèmes et durée estimée.
-- Interface française adaptée aux petits écrans.
+## Fonctionnalités
 
-Le catalogue présente les cours : les leçons détaillées ne sont pas encore disponibles. Cette version locale utilise **un profil partagé, sans connexion utilisateur**. Elle ne calcule pas encore de progression et ne génère aucun contenu par IA. Aucune clé API n’est nécessaire.
+| Étape | Fonction livrée |
+| --- | --- |
+| 1 | Profil apprenant persistant et catalogue |
+| 2 | Cinq leçons Python, quiz corrigés côté serveur et historique |
+| 3 | Parcours adaptatif : dernier score, seuil de maîtrise de 70 %, prérequis |
+| 4 | Résumés, fiches et quiz : mode local extractif et connecteur LLM configurable |
+| 5 | Import `.txt`, `.md`, PDF textuels ; recherche TF-IDF et extraits sources conservés |
+| 6 | Ressources classées selon difficultés, niveau et objectif, avec explications |
+| 7 | Scores, moyennes, maîtrise par cours et évolution chronologique |
+| 8 | Comptes privés, CSRF, PostgreSQL optionnel, service IA indépendant, Docker Compose et CI |
 
-## Comprendre le code
+L’intégration LLM se vérifie avec un fournisseur configuré ; aucun appel payant n’est requis pour les tests. Les fichiers de déploiement cloud sont fournis ; aucune VM publique n’a été créée. Les détails des vérifications et limites figurent dans le document explicatif.
 
-```text
-app.py                  Création de Flask, routes et validation
-courses.py              Catalogue initial et niveaux autorisés
-database.py             Lecture et écriture SQLite
-templates/              Pages HTML Jinja
-static/style.css        Présentation et adaptation mobile
-tests/test_app.py       Tests HTTP avec une base temporaire
-docs/CONCEPTION.md      Architecture et feuille de route
-docs/DEMONSTRATION.md   Scénario de présentation
+## Studio et LLM
+
+Le mode par défaut `AI_MODE=local` découpe et sélectionne les textes, crée des fiches et des quiz à trous. **Il n’utilise pas de LLM.** Pour activer un fournisseur compatible Chat Completions, créer un `.env` local :
+
+```dotenv
+AI_MODE=llm
+LLM_BASE_URL=https://api.openai.com/v1
+LLM_API_KEY=votre-cle-privee
+LLM_MODEL=identifiant-du-modele-de-votre-fournisseur
+LLM_TIMEOUT=45
 ```
 
-Un formulaire valide passe par `app.py`, puis `save_profile()` dans `database.py`. La route relit ensuite le profil pour remplir la page HTML. Les requêtes SQL sont paramétrées et Jinja échappe les textes affichés.
+Redémarrer l’application. La requête et les extraits retrouvés seront envoyés au fournisseur choisi. Le mode réel est affiché sur chaque production. Une erreur du fournisseur est signalée ; aucun repli local silencieux.
 
-L’architecture commence dans une seule application organisée en fichiers simples. Les microservices et le cloud seront abordés après validation des fonctions pédagogiques. SQLite couvre les premiers besoins SQL ; une base NoSQL ne sera ajoutée que si nécessaire.
+Le studio recherche dans les leçons intégrées, les documents du compte ou les deux. Les fichiers sont limités à 1 Mio, 50 000 caractères extraits et 30 documents par compte. Les PDF scannés sans texte nécessitent un OCR externe. Les productions sont exportables en JSON ; les corrigés de quiz ne sont pas inclus dans l’export public de l’entraînement.
 
-## Étapes du projet
+## Architecture
 
-| Étape | Livrable | État |
-| --- | --- | --- |
-| 1 | Profil apprenant, catalogue, stockage SQLite | Réalisée |
-| 2 | Quiz prédéfinis, correction et historique des résultats | À réaliser |
-| 3 | Parcours adaptatif fondé sur le niveau et les scores | À réaliser |
-| 4 | Génération de quiz, résumés et fiches avec un LLM | À réaliser |
-| 5 | RAG sur les documents avec références aux sources | À réaliser |
-| 6 | Recommandation expliquée de ressources | À réaliser |
-| 7 | Tableau de bord Learning Analytics | À réaliser |
-| 8 | Authentification, cloud et évolution vers les microservices | À réaliser |
+```text
+app.py          Configuration, accueil, profil et santé
+ auth.py        Comptes, sessions et CSRF
+ database.py    Stockage SQLite / PostgreSQL
+ courses.py     Cinq leçons et leurs questions éditoriales
+ pedagogy.py    Correction, adaptation, recommandations, statistiques
+ learning.py    Routes cours, quiz, résultats, parcours et progression
+ retrieval.py   Segmentation et recherche lexicale TF-IDF
+ generation.py  Génération locale / connecteur LLM et validation
+ ai_service.py  Service HTTP IA facultatif, protégé par jeton
+ studio.py      Imports, productions privées et quiz générés
+ templates/     Pages HTML Jinja
+ static/        Styles CSS sans framework frontend
+ tests/         Tests de comportement, sécurité et intégration
+```
 
-Chaque étape sera réalisée et vérifiée séparément. La prochaine livraison portera sur les quiz prédéfinis, avant d’ajouter la génération IA.
+Le mode local exécute tout dans Flask. Le mode Compose sépare le web, le service IA et PostgreSQL. Le service IA et la base n’exposent pas de port sur l’hôte.
 
 ## Vérifier
 
 ```bash
 source .venv/bin/activate
 python -m unittest discover -s tests -v
+python -m compileall -q *.py tests
 ```
 
-Les tests utilisent une base temporaire indépendante des données de démonstration. Ils vérifient les pages, la sauvegarde après recréation de l’application, la modification, le refus des entrées invalides et l’échappement des textes.
+Le test PostgreSQL exige `TEST_DATABASE_URL` vers une base de test dédiée et `pip install -r requirements-deploy.txt`. Sans cette variable, il est explicitement ignoré. Les tests HTTP fournisseur utilisent un serveur factice local et n’appellent aucun LLM externe. Ils sont ignorés si l’environnement interdit l’ouverture d’un port local.
+
+Les tests CI couvrent Python 3.12/3.14, PostgreSQL 17 et le démarrage Docker Compose. Voir l’onglet Actions pour le résultat de chaque exécution.
+
+## Déployer et présenter
+
+- [Explication complète et liste de vérification](EXPLICATION_PROJET.md)
+- [Scénario de démonstration](docs/DEMONSTRATION.md)
+- [Déploiement Docker / VM cloud avec HTTPS](docs/DEPLOIEMENT.md)
+- [Conception initiale et huit étapes](docs/CONCEPTION.md)
 
 ## Références techniques
 
-- [Installation officielle de Flask](https://flask.palletsprojects.com/en/stable/installation/)
-- [SQLite dans le tutoriel Flask](https://flask.palletsprojects.com/en/stable/tutorial/database/)
+- [Flask : tutoriel et sécurité](https://flask.palletsprojects.com/en/stable/tutorial/)
+- [Psycopg : utilisation de PostgreSQL](https://www.psycopg.org/psycopg3/docs/basic/usage.html)
+- [Docker Compose : variables d’environnement](https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/)
+- [API Chat Completions](https://developers.openai.com/api/reference/resources/chat)

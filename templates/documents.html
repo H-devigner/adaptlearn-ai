@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Mes documents{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <h1>Mes documents</h1>
+  <p>Importez vos notes ou un document texte pour les utiliser dans le studio pédagogique.</p>
+  <a class="text-link" href="{{ url_for('studio.index') }}">Retour au studio →</a>
+</div>
+<div class="form-layout">
+  <form class="panel" method="post" enctype="multipart/form-data" action="{{ url_for('studio.documents') }}">
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+    <h2>Importer un document</h2>
+    <label for="title">Titre</label>
+    <input id="title" name="title" maxlength="500" required value="{{ title }}">
+    <label for="content">Coller du texte</label>
+    <textarea id="content" name="content" rows="7" maxlength="50000">{{ content }}</textarea>
+    <p class="hint">Jusqu’à 50 000 caractères.</p>
+    <label for="file">Ou joindre un fichier</label>
+    <input id="file" name="file" type="file" accept=".txt,.md,.pdf" aria-describedby="file-hint">
+    <p class="hint" id="file-hint">Fichier .txt ou .md en UTF-8, ou PDF textuel. Taille maximale de 1 Mo.</p>
+    <button type="submit" class="button">Importer</button>
+  </form>
+  <section aria-labelledby="documents-heading">
+    <h2 id="documents-heading">Documents importés</h2>
+    <p>{{ documents|length }} / {{ max_documents }} documents</p>
+    {% if documents %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Titre</th><th scope="col">Caractères</th><th scope="col">Action</th></tr></thead>
+        <tbody>
+        {% for document in documents %}
+          <tr>
+            <td>{{ document.title }}</td>
+            <td>{{ document.content|length }}</td>
+            <td>
+              <form method="post" action="{{ url_for('studio.delete_document', document_id=document.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                <button type="submit" class="text-link" aria-label="Supprimer {{ document.title }}">Supprimer</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}<p>Aucun document importé.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

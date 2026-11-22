@@ -1,0 +1,11 @@
+**
+!*.py
+!requirements.txt
+!requirements-deploy.txt
+!templates/
+!templates/**
+!static/
+!static/**
+**/.env*
+**/__pycache__/
+**/.DS_Store

@@ -1,30 +1,37 @@
-# Présenter l’étape 1 en cinq minutes
+# Démontrer la plateforme en dix minutes
 
-## 1. Besoin et objectif — une minute
+## Avant la présentation
 
-« Nous construisons une plateforme qui vise à adapter les apprentissages au profil et aux résultats. À terme, elle générera des quiz, des résumés et des fiches à partir des supports pédagogiques. »
+Lancer le projet suivant le README et ouvrir http://127.0.0.1:5050. Préparer deux comptes de démonstration pour montrer l’isolation. Utiliser le mode local pour une présentation sans clé et sans dépendance au fournisseur LLM.
 
-## 2. Architecture — une minute
+## 1. Besoin et architecture — une minute
 
-Montrer `app.py`, `database.py`, `courses.py` et `templates/` : le navigateur envoie un formulaire à Flask, Flask valide les données et SQLite les conserve. Expliquer que cette première structure privilégie la lisibilité et prépare des modules séparables.
+Expliquer le besoin : un apprenant veut identifier sa prochaine leçon, s’évaluer et réviser à partir de ses propres documents. Montrer les modules et les deux configurations : Flask/SQLite local, ou web/service IA/PostgreSQL avec Compose.
 
-## 3. Démonstration — deux minutes
+## 2. Compte et profil — une minute
 
-1. Lancer l’application avec les commandes du README.
-2. Ouvrir l’accueil puis « Mon profil ».
-3. Saisir le pseudonyme « Lina », le niveau « Débutant » et l’objectif « Comprendre Python pour analyser des données ».
-4. Enregistrer et montrer le message de confirmation.
-5. Revenir à l’accueil : le pseudonyme et l’objectif sont affichés.
-6. Modifier le niveau dans le profil puis enregistrer.
-7. Arrêter et relancer le serveur : le profil est conservé.
-8. Ouvrir le catalogue : cinq fiches, leurs niveaux, thèmes et durées estimées.
+Créer un compte, renseigner le pseudonyme « Lina », niveau « Débutant », objectif « Comprendre les variables Python ». Montrer que le profil est conservé au redémarrage et propre à ce compte.
 
-Les champs obligatoires sont contrôlés par le navigateur et par le serveur ; les tests automatisés vérifient aussi les requêtes invalides envoyées directement au serveur.
+## 3. Leçon et évaluation — deux minutes
 
-## 4. Bilan et suite — une minute
+Ouvrir « Premiers pas avec Python », lire la leçon, passer son quiz. Faire une erreur pour montrer le score et l’explication. Revenir au parcours : la leçon est à revoir. Repasser avec les bonnes réponses : le dernier score atteint le seuil et les variables deviennent la prochaine leçon.
 
-Acquis : application fonctionnelle, interface, profil persistant et catalogue. Montrer le tableau des huit étapes dans le README.
+## 4. Adaptation et statistiques — une minute
 
-Limites actuelles : un seul profil local, fiches de présentation des cours, aucun quiz, aucune génération IA et aucun score de progression. Les chiffres de l’accueil décrivent le catalogue et l’étape du projet, pas la progression pédagogique.
+Montrer la raison donnée par le parcours, la page Ressources puis la progression. Expliquer la différence entre dernier résultat, meilleur résultat et moyenne de toutes les tentatives. La maîtrise correspond au dernier score supérieur ou égal à 70 %, pas au temps passé.
 
-Prochaine livraison : répondre à un quiz prédéfini, calculer le score côté serveur, conserver les tentatives et consulter leur historique. Les résultats serviront ensuite à adapter le parcours.
+## 5. RAG et génération — trois minutes
+
+Dans « Mes documents », coller ce texte sous le titre « Énergie solaire » :
+
+> L’énergie solaire provient du rayonnement du Soleil. Les panneaux photovoltaïques transforment une partie de ce rayonnement en électricité. Un onduleur transforme le courant continu en courant alternatif. L’orientation et l’ensoleillement influencent la production. Une batterie peut stocker une partie de l’électricité pour un usage ultérieur.
+
+Dans le studio, sélectionner « Mes documents », saisir « énergie solaire » et générer un résumé. Montrer le mode local et les extraits retrouvés. Générer ensuite des fiches et un quiz, répondre au quiz et retrouver l’essai dans l’historique. Expliquer que cet entraînement généré ne remplace pas les évaluations éditoriales du parcours.
+
+Exporter le résumé en JSON. Chercher « tectonique abyssale » dans les documents personnels : montrer l’absence de contexte pertinent, sans contenu inventé. Les sources aident à vérifier les supports ; elles ne garantissent pas automatiquement leur exactitude pédagogique.
+
+Si une clé et un modèle ont été configurés, refaire une génération en mode LLM. Sinon présenter le connecteur et ses tests avec fournisseur factice, sans affirmer qu’un modèle distant a été exécuté.
+
+## 6. Isolation, limites et suite — deux minutes
+
+Se déconnecter, ouvrir le second compte et constater l’absence des documents et résultats du premier. Montrer le rapport EXPLICATION_PROJET.md et sa liste de vérification. Expliquer les limites : petit catalogue, recherche lexicale, absence d’OCR, nécessité de relire les sorties LLM et déploiement cloud à réaliser dans l’environnement choisi.

@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Résultat du quiz{% endblock %}
+{% block content %}
+<div class="page-heading"><p class="eyebrow">CORRECTION ET EXPLICATIONS</p><h1>{{ attempt.score }} / {{ attempt.total }} — {{ attempt.percentage }} %</h1><p>{{ course.title if course else 'Entraînement sur un quiz généré' }} · {{ attempt.created_at[:19]|replace('T', ' ') }} UTC</p></div>
+<p class="{{ 'success' if attempt.percentage >= 70 else 'notice' }}">{% if course %}{{ 'Seuil de maîtrise atteint pour cette tentative.' if attempt.percentage >= 70 else 'Révisez la leçon puis réessayez. Le seuil de maîtrise est de 70 %.' }}{% else %}Cet entraînement est conservé dans l’historique. Il ne modifie pas la maîtrise des cours du parcours.{% endif %}</p>
+{% for correction in attempt.corrections %}<article class="panel correction"><span class="pill">{{ 'Correct' if correction.correct else 'À revoir' }}</span><h2>{{ loop.index }}. {{ correction.question }}</h2><p>Votre choix : {{ correction.selected + 1 }} · Bonne réponse : {{ correction.answer + 1 }}</p><p>{{ correction.explanation }}</p></article>{% endfor %}
+<div class="actions">{% if course %}<a class="button" href="{{ url_for('learning.lesson', course_id=course.id) }}">Revoir la leçon</a>{% endif %}<a class="text-link" href="{{ url_for('learning.path') }}">Mon parcours →</a><a class="text-link" href="{{ url_for('learning.progress') }}">Ma progression →</a></div>
+{% endblock %}

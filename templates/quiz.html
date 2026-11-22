@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Quiz · {{ title }}{% endblock %}
+{% block content %}
+<div class="page-heading"><p class="eyebrow">{{ 'ENTRAÎNEMENT GÉNÉRÉ' if generated else 'ÉVALUER SES ACQUIS' }}</p><h1>{{ title }}.</h1><p>Choisissez une réponse par question. Le corrigé sera affiché après validation.</p></div>
+<form method="post">
+<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+{% if error %}<p role="alert" class="error">{{ error }}</p>{% endif %}
+{% for question in questions %}{% set question_index = loop.index0 %}
+<fieldset class="panel quiz-question"><legend>{{ loop.index }}. {{ question.question }}</legend>
+{% for option in question.options %}
+<label class="answer-option"><input type="radio" name="q{{ question_index }}" value="{{ loop.index0 }}" required {% if request.form.get('q' ~ question_index) == loop.index0|string %}checked{% endif %}> <span>{{ option }}</span></label>
+{% endfor %}</fieldset>
+{% endfor %}<button class="button">Valider mes réponses →</button>
+</form>
+{% endblock %}

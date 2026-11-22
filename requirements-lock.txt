@@ -1,7 +1,12 @@
 blinker==1.9.0
 click==8.5.1
 Flask==3.1.2
+gunicorn==27.0.1
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.4
+psycopg==3.3.9
+psycopg-binary==3.3.9
+pypdf==6.21.4
+python-dotenv==1.2.4
 Werkzeug==3.1.9
