@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Accueil{% endblock %} · AdaptLearn AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('home') }}"><span class="brand-icon">a.</span> AdaptLearn <span class="brand-ai">AI</span></a>
+    <nav aria-label="Navigation principale">
+      {% for endpoint, label in [('home', 'Vue d’ensemble'), ('profile', 'Mon profil'), ('courses', 'Catalogue')] %}
+      <a href="{{ url_for(endpoint) }}" {% if request.endpoint == endpoint %}aria-current="page"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </nav>
+    <span class="demo-label">DÉMO LOCALE · ÉTAPE 01</span>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer>AdaptLearn AI <span>Projet d’apprentissage adaptatif · Première livraison</span></footer>
+</body>
+</html>
