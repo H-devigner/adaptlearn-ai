@@ -1,20 +1,68 @@
 {% extends 'base.html' %}
-{% block title %}Mon profil{% endblock %}
+{% block title %}
+  Mon profil
+{% endblock %}
 {% block content %}
-<div class="page-heading"><p class="eyebrow">VOTRE POINT DE DÉPART</p><h1>Mon profil apprenant<span>.</span></h1><p>Définissez votre niveau et ce que vous souhaitez apprendre.</p></div>
-<div class="form-layout">
-<form method="post" class="panel">
-  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-  {% if saved and not errors %}<p class="success" role="status">Votre profil a bien été enregistré.</p>{% endif %}
-  {% if errors %}<div class="error" role="alert"><ul>{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul></div>{% endif %}
-  <label for="name">Prénom ou pseudonyme</label>
-  <input id="name" name="name" required maxlength="80" autocomplete="given-name" value="{{ values.get('name', '') }}" placeholder="Ex. Sara">
-  <label for="level">Niveau en Python</label>
-  <select id="level" name="level" required><option value="">Choisissez votre niveau</option>{% for level in levels %}<option {% if values.get('level') == level %}selected{% endif %}>{{ level }}</option>{% endfor %}</select>
-  <label for="goal">Objectif d’apprentissage</label>
-  <textarea id="goal" name="goal" required maxlength="500" rows="4" placeholder="Ex. Maîtriser les bases de Python pour analyser des données.">{{ values.get('goal', '') }}</textarea>
-  <p class="hint">500 caractères maximum.</p><button class="button" type="submit">Enregistrer mon profil ↗</button>
-</form>
-<aside class="side-note"><span class="note-icon">01</span><h2>Un premier pas vers un parcours adapté.</h2><p>Ces informations serviront à personnaliser les prochaines étapes de votre apprentissage.</p><p>Votre profil est associé à votre compte. Utilisez un pseudonyme pour la présentation.</p></aside>
-</div>
+  <div class="page-heading">
+    <p class="eyebrow">
+      VOTRE POINT DE DÉPART
+    </p>
+    <h1>
+      Mon profil apprenant<span>.</span>
+    </h1>
+    <p>
+      Définissez votre niveau et ce que vous souhaitez apprendre.
+    </p>
+  </div>
+  <div class="form-layout">
+    <form method="post" class="panel">
+      <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+      {% if saved and not errors %}
+        <p class="success" role="status">
+          Votre profil a bien été enregistré.
+        </p>
+      {% endif %}
+      {% if errors %}
+        <div class="error" role="alert">
+          <ul>
+            {% for error in errors %}
+              <li>
+                {{ error }}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+      <label for="name">Prénom ou pseudonyme</label>
+      <input id="name" name="name" required maxlength="80" autocomplete="given-name" value="{{ values.get('name', '') }}" placeholder="Ex. Sara">
+      <label for="level">Niveau en Python</label>
+      <select id="level" name="level" required><option value="">Choisissez votre niveau</option>
+        {% for level in levels %}
+          <option
+            {% if values.get('level') == level %}
+              selected
+            {% endif %}
+          >{{ level }}</option>
+        {% endfor %}
+      </select>
+      <label for="goal">Objectif d’apprentissage</label>
+      <textarea id="goal" name="goal" required maxlength="500" rows="4" placeholder="Ex. Maîtriser les bases de Python pour analyser des données.">{{ values.get('goal', '') }}</textarea>
+      <p class="hint">
+        500 caractères maximum.
+      </p>
+      <button class="button" type="submit">Enregistrer mon profil ↗</button>
+    </form>
+    <aside class="side-note">
+      <span class="note-icon">01</span>
+      <h2>
+        Un premier pas vers un parcours adapté.
+      </h2>
+      <p>
+        Ces informations serviront à personnaliser les prochaines étapes de votre apprentissage.
+      </p>
+      <p>
+        Votre profil est associé à votre compte. Utilisez un pseudonyme pour la présentation.
+      </p>
+    </aside>
+  </div>
 {% endblock %}

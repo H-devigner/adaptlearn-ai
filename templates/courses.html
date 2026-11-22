@@ -1,9 +1,45 @@
 {% extends 'base.html' %}
-{% block title %}Catalogue{% endblock %}
+{% block title %}
+  Catalogue
+{% endblock %}
 {% block content %}
-<div class="page-heading"><p class="eyebrow">LES BASES POUR AVANCER</p><h1>Explorez le catalogue<span>.</span></h1><p>Une première sélection de cours pour découvrir Python et développer vos compétences.</p></div>
-<p class="catalogue-meta">{{ courses|length }} cours · Python <span>Leçons et quiz disponibles</span></p>
-<div class="course-grid">{% for course in courses %}
-<article class="course-card"><div class="course-top"><span class="course-number">{{ '%02d'|format(loop.index) }}</span><span class="pill">{{ course.level }}</span></div><h2>{{ course.title }}</h2><p>{{ course.description }}</p><ul class="topics">{% for topic in course.topics %}<li>{{ topic }}</li>{% endfor %}</ul><div class="course-footer"><span>{{ course.duration }} min estimées</span><a href="{{ url_for('learning.lesson', course_id=course.id) }}">Ouvrir la leçon →</a></div></article>
-{% endfor %}</div>
+  <div class="page-heading">
+    <p class="eyebrow">
+      LES BASES POUR AVANCER
+    </p>
+    <h1>
+      Explorez le catalogue<span>.</span>
+    </h1>
+    <p>
+      Une première sélection de cours pour découvrir Python et développer vos compétences.
+    </p>
+  </div>
+  <p class="catalogue-meta">
+    {{ courses|length }} cours · Python <span>Leçons et quiz disponibles</span>
+  </p>
+  <div class="course-grid">
+    {% for course in courses %}
+      <article class="course-card">
+        <div class="course-top">
+          <span class="course-number">{{ '%02d'|format(loop.index) }}</span><span class="pill">{{ course.level }}</span>
+        </div>
+        <h2>
+          {{ course.title }}
+        </h2>
+        <p>
+          {{ course.description }}
+        </p>
+        <ul class="topics">
+          {% for topic in course.topics %}
+            <li>
+              {{ topic }}
+            </li>
+          {% endfor %}
+        </ul>
+        <div class="course-footer">
+          <span>{{ course.duration }} min estimées</span><a href="{{ url_for('learning.lesson', course_id=course.id) }}">Ouvrir la leçon →</a>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
 {% endblock %}

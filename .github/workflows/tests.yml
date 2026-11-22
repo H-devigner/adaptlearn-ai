@@ -69,12 +69,15 @@ jobs:
           variables = ('SECRET_KEY', 'AI_SERVICE_TOKEN', 'POSTGRES_PASSWORD')
           Path('.env').write_text(''.join(f'{key}={token_hex(32)}\n' for key in variables))
           PY
-      - run: docker compose config --quiet
-      - run: docker compose up --build --wait --wait-timeout 120
+      - run: docker compose -f compose.yaml -f compose.test.yaml config --quiet
+      - run: docker compose -f compose.yaml -f compose.test.yaml build
+      - name: Précharger les embeddings dans le volume du web
+        run: docker compose -f compose.yaml -f compose.test.yaml run --rm --no-deps web python scripts/download_model.py
+      - run: docker compose -f compose.yaml -f compose.test.yaml up --wait --wait-timeout 180
       - run: curl --fail --silent --show-error http://127.0.0.1:5050/health
       - name: Vérifier la génération sur le réseau privé
         run: |
-          docker compose exec -T web python - <<'PY'
+          docker compose -f compose.yaml -f compose.test.yaml exec -T web python - <<'PY'
           import json
           import os
           from urllib.request import Request, urlopen
@@ -98,9 +101,24 @@ jobs:
           )
           with urlopen(request, timeout=5) as response:
               result = json.load(response)
-          assert result['mode'] == 'local' and result['kind'] == 'summary'
+          assert result['mode'] == 'llm' and result['kind'] == 'summary'
           PY
       - if: failure()
-        run: docker compose ps --all
+        run: docker compose -f compose.yaml -f compose.test.yaml ps --all
       - if: always()
-        run: docker compose down --volumes
+        run: docker compose -f compose.yaml -f compose.test.yaml down --volumes
+
+  semantic:
+    name: Recherche multilingue avec vrai modèle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -p 'test_semantic_integration.py' -v
+        env:
+          RUN_SEMANTIC_TESTS: '1'
+          EMBEDDING_CACHE_DIR: ${{ runner.temp }}/adaptlearn-models

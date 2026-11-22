@@ -1,6 +1,33 @@
 {% extends 'base.html' %}
-{% block title %}Ressources recommandées{% endblock %}
+{% block title %}
+  Ressources recommandées
+{% endblock %}
 {% block content %}
-<div class="page-heading"><p class="eyebrow">DES CONSEILS COMPRÉHENSIBLES</p><h1>Vos ressources.</h1><p>Priorité aux difficultés et à la prochaine leçon, puis au niveau et aux thèmes de votre objectif.</p></div>
-{% for item in recommendations %}<article class="panel correction"><span class="pill">{{ item.course.level }}</span><h2>{{ item.course.title }}</h2><p>{{ item.reason }}</p><a class="text-link" href="{{ url_for('learning.lesson', course_id=item.course.id) }}">Consulter cette ressource →</a></article>{% else %}<p class="success">Les cours du catalogue sont maîtrisés. Vous pouvez les revoir dans le catalogue.</p>{% endfor %}
+  <div class="page-heading">
+    <p class="eyebrow">
+      DES CONSEILS COMPRÉHENSIBLES
+    </p>
+    <h1>
+      Vos ressources.
+    </h1>
+    <p>
+      Priorité aux difficultés et à la prochaine leçon, puis au niveau et aux thèmes de votre objectif.
+    </p>
+  </div>
+  {% for item in recommendations %}
+    <article class="panel correction">
+      <span class="pill">{{ item.course.level }}</span>
+      <h2>
+        {{ item.course.title }}
+      </h2>
+      <p>
+        {{ item.reason }}
+      </p>
+      <a class="text-link" href="{{ url_for('learning.lesson', course_id=item.course.id) }}">Consulter cette ressource →</a>
+    </article>
+  {% else %}
+    <p class="success">
+      Les cours du catalogue sont maîtrisés. Vous pouvez les revoir dans le catalogue.
+    </p>
+  {% endfor %}
 {% endblock %}

@@ -18,12 +18,17 @@ from generation import (
 )
 from retrieval import CHUNK_SIZE
 
-
 REQUEST_LIMIT = 200 * 1024
 
 
 def _valid_source(source):
-    if not isinstance(source, dict) or source.keys() != {'document_id', 'title', 'text', 'chunk_index', 'score'}:
+    if not isinstance(source, dict) or source.keys() != {
+        'document_id',
+        'title',
+        'text',
+        'chunk_index',
+        'score',
+    }:
         return False
     document_id = source['document_id']
     score = source['score']
@@ -42,7 +47,7 @@ def create_app(test_config=None):
     app = Flask(__name__)
     app.config.from_mapping(
         AI_SERVICE_TOKEN=os.environ.get('AI_SERVICE_TOKEN'),
-        AI_MODE=os.environ.get('AI_MODE', 'local'),
+        AI_MODE=os.environ.get('AI_MODE', 'llm'),
         LLM_BASE_URL=os.environ.get('LLM_BASE_URL', DEFAULT_LLM_BASE_URL),
         LLM_API_KEY=os.environ.get('LLM_API_KEY'),
         LLM_MODEL=os.environ.get('LLM_MODEL'),
@@ -67,8 +72,16 @@ def create_app(test_config=None):
     @app.post('/generate')
     def generate():
         auth = request.headers.get('Authorization', '').split()
-        if len(auth) != 2 or auth[0].lower() != 'bearer' or not hmac.compare_digest(auth[1].encode('utf-8'), token_bytes):
-            return jsonify(error='Jeton du service IA absent ou invalide.'), 401, {'WWW-Authenticate': 'Bearer'}
+        if (
+            len(auth) != 2
+            or auth[0].lower() != 'bearer'
+            or not hmac.compare_digest(auth[1].encode('utf-8'), token_bytes)
+        ):
+            return (
+                jsonify(error='Jeton du service IA absent ou invalide.'),
+                401,
+                {'WWW-Authenticate': 'Bearer'},
+            )
         body = request.get_data()
         try:
             data = parse_strict_json(body) if request.is_json else None
@@ -80,8 +93,14 @@ def create_app(test_config=None):
         if not isinstance(kind, str) or kind not in FORMATS:
             return jsonify(error='Format de support inconnu.'), 400
         if not valid_text(query, MAX_QUERY_LENGTH):
-            return jsonify(error=f'Saisissez une requête de 1 à {MAX_QUERY_LENGTH} caractères.'), 400
-        if not isinstance(sources, list) or not 1 <= len(sources) <= 16 or not all(map(_valid_source, sources)):
+            return jsonify(
+                error=f'Saisissez une requête de 1 à {MAX_QUERY_LENGTH} caractères.'
+            ), 400
+        if (
+            not isinstance(sources, list)
+            or not 1 <= len(sources) <= 16
+            or not all(map(_valid_source, sources))
+        ):
             return jsonify(error='Fournissez de 1 à 16 extraits de recherche valides.'), 400
         try:
             return jsonify(generate_material(kind, query, sources, app.config))

@@ -1,3 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}Demande impossible{% endblock %}
-{% block content %}<div class="page-heading"><h1>Demande impossible.</h1><p role="alert">{{ message }}</p><a class="button" href="{{ url_for('home') }}">Retour à l’accueil</a></div>{% endblock %}
+{% block title %}
+  Demande impossible
+{% endblock %}
+{% block content %}
+  <div class="page-heading">
+    <h1>
+      Demande impossible.
+    </h1>
+    <p role="alert">
+      {{ message }}
+    </p>
+    <a class="button" href="{{ url_for('home') }}">Retour à l’accueil</a>
+  </div>
+{% endblock %}

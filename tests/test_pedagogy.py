@@ -1,4 +1,5 @@
 """Contrats des leçons, des quiz et du suivi pédagogique."""
+
 import unittest
 
 from courses import COURSES, LEVELS
@@ -14,8 +15,13 @@ class CatalogueTests(unittest.TestCase):
 
         self.assertEqual(
             [course['id'] for course in COURSES],
-            ['python-debut', 'variables', 'conditions-boucles', 'fonctions-collections',
-             'generateurs'],
+            [
+                'python-debut',
+                'variables',
+                'conditions-boucles',
+                'fonctions-collections',
+                'generateurs',
+            ],
         )
         previous_ids = set()
         for course in COURSES:
@@ -38,22 +44,48 @@ class CatalogueTests(unittest.TestCase):
 
 class QuizTests(unittest.TestCase):
     questions = [
-        {'question': 'Question A', 'options': ['a', 'b', 'c', 'd'],
-         'answer': 1, 'explanation': 'Explication A'},
-        {'question': 'Question B', 'options': ['e', 'f', 'g', 'h'],
-         'answer': 3, 'explanation': 'Explication B'},
+        {
+            'question': 'Question A',
+            'options': ['a', 'b', 'c', 'd'],
+            'answer': 1,
+            'explanation': 'Explication A',
+        },
+        {
+            'question': 'Question B',
+            'options': ['e', 'f', 'g', 'h'],
+            'answer': 3,
+            'explanation': 'Explication B',
+        },
     ]
 
     def test_score_et_corrections(self):
         from pedagogy import grade_quiz
 
         result = grade_quiz(self.questions, ['1', 2])
-        self.assertEqual(result, {'score': 1, 'total': 2, 'percentage': 50.0, 'corrections': [
-            {'question': 'Question A', 'selected': 1, 'answer': 1, 'correct': True,
-             'explanation': 'Explication A'},
-            {'question': 'Question B', 'selected': 2, 'answer': 3, 'correct': False,
-             'explanation': 'Explication B'},
-        ]})
+        self.assertEqual(
+            result,
+            {
+                'score': 1,
+                'total': 2,
+                'percentage': 50.0,
+                'corrections': [
+                    {
+                        'question': 'Question A',
+                        'selected': 1,
+                        'answer': 1,
+                        'correct': True,
+                        'explanation': 'Explication A',
+                    },
+                    {
+                        'question': 'Question B',
+                        'selected': 2,
+                        'answer': 3,
+                        'correct': False,
+                        'explanation': 'Explication B',
+                    },
+                ],
+            },
+        )
         self.assertIsInstance(result['percentage'], float)
 
     def test_nombre_de_reponses_invalide(self):
@@ -73,9 +105,15 @@ class QuizTests(unittest.TestCase):
     def test_quiz_vide(self):
         from pedagogy import grade_quiz
 
-        self.assertEqual(grade_quiz([], []), {
-            'score': 0, 'total': 0, 'percentage': 0.0, 'corrections': [],
-        })
+        self.assertEqual(
+            grade_quiz([], []),
+            {
+                'score': 0,
+                'total': 0,
+                'percentage': 0.0,
+                'corrections': [],
+            },
+        )
 
 
 class ParcoursTests(unittest.TestCase):
@@ -98,9 +136,16 @@ class ParcoursTests(unittest.TestCase):
             attempt('python-debut', 7, 10, '2026-11-22'),
         ]
         path = build_path(COURSES, attempts, 'Débutant')
-        self.assertEqual([entry['status'] for entry in path], [
-            'mastered', 'review', 'locked', 'locked', 'locked',
-        ])
+        self.assertEqual(
+            [entry['status'] for entry in path],
+            [
+                'mastered',
+                'review',
+                'locked',
+                'locked',
+                'locked',
+            ],
+        )
         self.assertEqual([entry['percentage'] for entry in path[:2]], [70.0, 60.0])
         self.assertIn('60', path[1]['reason'])
         attempts.append(attempt('variables', 9, 10, '2026-11-23'))
@@ -118,10 +163,13 @@ class ParcoursTests(unittest.TestCase):
         from pedagogy import recommend_resources
 
         attempts = [attempt('python-debut', 2, 3, '2026-11-22')]
-        suggestions = recommend_resources(COURSES, attempts, 'Intermédiaire', 'Étudier les generateurs')
+        suggestions = recommend_resources(
+            COURSES, attempts, 'Intermédiaire', 'Étudier les generateurs'
+        )
         ids = [item['course']['id'] for item in suggestions]
-        self.assertEqual(ids, ['python-debut', 'conditions-boucles', 'fonctions-collections',
-                               'generateurs'])
+        self.assertEqual(
+            ids, ['python-debut', 'conditions-boucles', 'fonctions-collections', 'generateurs']
+        )
         self.assertIn('niveau', suggestions[1]['reason'])
         self.assertIn('objectif', suggestions[-1]['reason'])
 
@@ -129,7 +177,9 @@ class ParcoursTests(unittest.TestCase):
         from pedagogy import recommend_resources
 
         suggestions = recommend_resources(COURSES, [], 'Avancé', 'générateurs')
-        self.assertEqual([item['course']['id'] for item in suggestions], ['python-debut', 'generateurs'])
+        self.assertEqual(
+            [item['course']['id'] for item in suggestions], ['python-debut', 'generateurs']
+        )
         self.assertIn('maîtriser', suggestions[-1]['reason'])
 
 
@@ -143,10 +193,16 @@ class StatistiquesTests(unittest.TestCase):
         self.assertEqual(stats['mastered_count'], 0)
         self.assertEqual(stats['completion_percentage'], 0.0)
         self.assertEqual(stats['timeline'], [])
-        self.assertEqual(stats['by_course'][0], {
-            'course_id': 'python-debut', 'title': COURSES[0]['title'], 'attempt_count': 0,
-            'last_percentage': None, 'best_percentage': None,
-        })
+        self.assertEqual(
+            stats['by_course'][0],
+            {
+                'course_id': 'python-debut',
+                'title': COURSES[0]['title'],
+                'attempt_count': 0,
+                'last_percentage': None,
+                'best_percentage': None,
+            },
+        )
 
     def test_statistiques_agregent_les_tentatives_en_ordre_chronologique(self):
         from pedagogy import learning_stats
@@ -161,12 +217,21 @@ class StatistiquesTests(unittest.TestCase):
         self.assertAlmostEqual(stats['average_percentage'], (90.0 + 50.0 + 75.0) / 3)
         self.assertEqual(stats['mastered_count'], 1)
         self.assertEqual(stats['completion_percentage'], 20.0)
-        self.assertEqual(stats['by_course'][0], {
-            'course_id': 'python-debut', 'title': COURSES[0]['title'], 'attempt_count': 2,
-            'last_percentage': 50.0, 'best_percentage': 90.0,
-        })
-        self.assertEqual(stats['timeline'], [
-            {'date': '2026-11-20T12:00:00', 'percentage': 90.0},
-            {'date': '2026-11-21T12:00:00', 'percentage': 50.0},
-            {'date': '2026-11-22T12:00:00', 'percentage': 75.0},
-        ])
+        self.assertEqual(
+            stats['by_course'][0],
+            {
+                'course_id': 'python-debut',
+                'title': COURSES[0]['title'],
+                'attempt_count': 2,
+                'last_percentage': 50.0,
+                'best_percentage': 90.0,
+            },
+        )
+        self.assertEqual(
+            stats['timeline'],
+            [
+                {'date': '2026-11-20T12:00:00', 'percentage': 90.0},
+                {'date': '2026-11-21T12:00:00', 'percentage': 50.0},
+                {'date': '2026-11-22T12:00:00', 'percentage': 75.0},
+            ],
+        )

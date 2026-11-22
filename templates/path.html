@@ -1,9 +1,48 @@
 {% extends 'base.html' %}
-{% block title %}Mon parcours{% endblock %}
+{% block title %}
+  Mon parcours
+{% endblock %}
 {% block content %}
-<div class="page-heading"><p class="eyebrow">UNE PROGRESSION EXPLIQUÉE</p><h1>Mon parcours.</h1><p>Le dernier score de chaque cours détermine la maîtrise. Seuil : 70 %.</p></div>
-{% if not profile %}<p class="notice"><a href="{{ url_for('profile') }}">Complétez votre profil</a> pour préciser votre niveau et votre objectif.</p>{% endif %}
-{% set labels = {'mastered':'Maîtrisé','review':'À revoir','next':'Prochaine leçon','locked':'Prérequis à acquérir','available':'Accessible'} %}
-<div class="path-list">{% for entry in entries %}<article class="panel path-entry"><span class="course-number">{{ '%02d'|format(loop.index) }}</span><div><span class="pill">{{ labels[entry.status] }}</span><h2>{{ entry.course.title }}</h2><p>{{ entry.reason }}</p>{% if entry.percentage is not none %}<p>Dernier score : {{ entry.percentage|round(1) }} %</p>{% endif %}</div><a class="text-link" href="{{ url_for('learning.lesson', course_id=entry.course.id) }}">{{ 'Consulter en avance' if entry.status == 'locked' else 'Ouvrir la leçon' }} →</a></article>{% endfor %}</div>
-<p class="hint">Les prérequis guident l’ordre conseillé ; toutes les leçons restent consultables pour réviser librement.</p>
+  <div class="page-heading">
+    <p class="eyebrow">
+      UNE PROGRESSION EXPLIQUÉE
+    </p>
+    <h1>
+      Mon parcours.
+    </h1>
+    <p>
+      Le dernier score de chaque cours détermine la maîtrise. Seuil : 70 %.
+    </p>
+  </div>
+  {% if not profile %}
+    <p class="notice">
+      <a href="{{ url_for('profile') }}">Complétez votre profil</a> pour préciser votre niveau et votre objectif.
+    </p>
+  {% endif %}
+  {% set labels = {'mastered':'Maîtrisé','review':'À revoir','next':'Prochaine leçon','locked':'Prérequis à acquérir','available':'Accessible'} %}
+  <div class="path-list">
+    {% for entry in entries %}
+      <article class="panel path-entry">
+        <span class="course-number">{{ '%02d'|format(loop.index) }}</span>
+        <div>
+          <span class="pill">{{ labels[entry.status] }}</span>
+          <h2>
+            {{ entry.course.title }}
+          </h2>
+          <p>
+            {{ entry.reason }}
+          </p>
+          {% if entry.percentage is not none %}
+            <p>
+              Dernier score : {{ entry.percentage|round(1) }} %
+            </p>
+          {% endif %}
+        </div>
+        <a class="text-link" href="{{ url_for('learning.lesson', course_id=entry.course.id) }}">{{ 'Consulter en avance' if entry.status == 'locked' else 'Ouvrir la leçon' }} →</a>
+      </article>
+    {% endfor %}
+  </div>
+  <p class="hint">
+    Les prérequis guident l’ordre conseillé ; toutes les leçons restent consultables pour réviser librement.
+  </p>
 {% endblock %}

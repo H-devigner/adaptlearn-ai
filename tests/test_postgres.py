@@ -1,14 +1,27 @@
 """Test d’intégration optionnel : base dédiée fournie par TEST_DATABASE_URL."""
+
 import os
 import unittest
 from uuid import uuid4
 
-from database import (add_document, connect, create_user, get_attempt, get_generation,
-                      get_profile, init_database, list_documents, save_attempt,
-                      save_generation, save_profile)
+from database import (
+    add_document,
+    connect,
+    create_user,
+    get_attempt,
+    get_generation,
+    get_profile,
+    init_database,
+    list_documents,
+    save_attempt,
+    save_generation,
+    save_profile,
+)
 
 
-@unittest.skipUnless(os.environ.get('TEST_DATABASE_URL'), 'TEST_DATABASE_URL absent : PostgreSQL non exécuté')
+@unittest.skipUnless(
+    os.environ.get('TEST_DATABASE_URL'), 'TEST_DATABASE_URL absent : PostgreSQL non exécuté'
+)
 class PostgresTests(unittest.TestCase):
     def test_full_storage_cycle_and_isolation(self):
         path = os.environ['TEST_DATABASE_URL']

@@ -1,40 +1,46 @@
-# Rapport final de vérification
+# Vérification du RAG LangChain et de la simplification
 
 Date : 22 novembre 2026.
 
-## Vérification locale de la version complète
-
-Commande exécutée après corrections de la revue :
+## Suite complète locale
 
 ```sh
-.venv/bin/python -m unittest discover -s tests -v
+RUN_SEMANTIC_TESTS=1 HF_HUB_OFFLINE=1 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-Résultat : **76 tests rapportés, 75 réussis, 1 ignoré**. Le seul test ignoré est l’intégration PostgreSQL, faute de serveur PostgreSQL local et de `TEST_DATABASE_URL`. Les deux tests de transport HTTP fonctionnent avec un fournisseur factice de boucle locale, sans appel externe payant.
+Résultat après intégration : **101 tests rapportés, 100 réussis, 1 ignoré**. Seul le test PostgreSQL est ignoré faute de serveur local ; il est exécuté dans GitHub Actions.
 
-`python -m compileall -q *.py tests`, `pip check` et `git diff --check` ont également réussi. L’environnement local utilise Python 3.14 et les versions de `requirements-lock.txt`.
+Les trois tests sémantiques utilisent le véritable modèle multilingue FastEmbed téléchargé depuis son dépôt officiel. Les deux paraphrases françaises retrouvent le passage attendu en premier, avec des scores observés de 0.5703 et 0.6626. La question hors sujet ne renvoie aucune source. Un test vérifie aussi qu’un fait situé à la fin d’une longue note reste indexé sans troncature silencieuse.
 
-## Vérification sur GitHub Actions
+Les tests rapides injectent des embeddings déterministes et un fournisseur HTTP factice ; ils ne sont jamais utilisés comme moteur de l’application. Ils couvrent les index privés, leur invalidation, les erreurs et limites de transport, les références, les imports PDF/texte, les profils, les quiz et la protection des comptes.
 
-La [première exécution de la version complète](https://github.com/H-devigner/adaptlearn-ai/actions/runs/45038633108), sur la révision `134af4c`, a réussi dans les quatre jobs :
+Les commandes `ruff check .`, `python -m compileall -q *.py scripts tests`, `pip check`, `git diff --check`, la compilation de tous les templates Jinja et la validation des deux fichiers Compose ont réussi.
 
-- Suite SQLite sur Python 3.12.
-- Suite SQLite sur Python 3.14.
-- Véritable test de stockage et d’isolation sur PostgreSQL 17.
-- Construction de l’image, démarrage des trois services Docker Compose, vérification du web connecté à PostgreSQL et génération authentifiée sur le réseau privé du service IA.
+## Vrai LLM local
 
-Les trois corrections ultérieures issues de la revue sont couvertes localement : réponses multiples au quiz éditorial, validation UUID des routes privées et traitement des refus métier du service IA. La [seconde exécution complète](https://github.com/H-devigner/adaptlearn-ai/actions/runs/45039097650), sur la révision corrigée `0e78601`, a également réussi dans les quatre jobs : SQLite Python 3.12/3.14, PostgreSQL 17 et pile Compose. Le code de la livraison finale est identique à cette révision ; les modifications suivantes concernent uniquement le présent compte rendu.
+Un serveur Ollama dédié au projet a été lancé sur `127.0.0.1:11435`, avec ses modèles dans `instance/ollama`, exclu de Git. Le petit modèle `qwen2.5:0.5b` a produit un résumé et des fiches valides à partir des sources réellement retrouvées par FastEmbed et LangChain.
 
-## Revue et démonstration
+Ses essais de quiz sont peu fiables : des choix en double et un mauvais indice ont été observés. Les contrôles n’ont pas été assouplis pour accepter ces réponses. Le dernier quiz invalide est refusé explicitement. Le guide recommande un modèle plus capable pour la présentation et une relecture pédagogique dans tous les cas.
 
-Une revue indépendante a identifié trois anomalies P2, reproduites dans des tests puis corrigées. La contre-revue a confirmé leur résolution. Les tests du studio vérifient aussi les pages HTML rendues, les imports texte/PDF, les trois formats, l’export sans corrigé et l’isolation des comptes.
+Les trois formats sont couverts avec un vrai transport HTTP de test et un schéma JSON strict Pydantic. Cela vérifie leur raccordement et la validation, sans prétendre mesurer la qualité générale d’un modèle.
 
-Le serveur local de la version complète a été lancé sur `http://127.0.0.1:5050`. Le navigateur a atteint la page d’inscription ; l’outil de capture de l’écran n’a ensuite pas permis une inspection visuelle complète de cette version. La relecture visuelle sur petit écran reste dans la liste de vérification manuelle. L’accueil de la première livraison avait été contrôlé visuellement.
+## Revue indépendante
 
-## Ce qui n’a pas été exécuté
+La revue a conduit à corriger :
 
-- Aucun appel réel à un modèle distant : il faut configurer une clé et un modèle pour valider la qualité de leurs productions.
-- Aucun provisionnement ni déploiement public sur un fournisseur cloud : la procédure est fournie dans DEPLOIEMENT.md.
-- Aucune étude avec de vrais apprenants, mesure de qualité pédagogique ou évaluation statistique du système de recommandation.
+- Découpage adapté aux 128 tokens du modèle, avec budget de 120 tokens au lieu d’un seul plafond en caractères.
+- Purge des index personnels après import et suppression, y compris le dernier document.
+- Reconstruction d’un index JSON incomplet ou corrompu.
+- Exclusion des scores nuls et empreinte du modèle/cache/corpus.
+- Refus des références numériques hors du contexte et isolation du traçage LangChain.
+- Préchargement du modèle avant le premier POST du studio sous Docker, pour éviter le délai d’expiration du worker.
 
-Le succès des tests confirme les comportements couverts. Il ne remplace pas une revue pédagogique des contenus ni les vérifications d’exploitation avant une ouverture publique.
+La purge ne garantit pas l’effacement instantané des fichiers réécrits par une requête déjà engagée sur son instantané. Les empreintes empêchent leur réutilisation pour un corpus différent. Les extraits sauvegardés avec les productions sont conservés volontairement.
+
+## GitHub Actions
+
+Le workflow vérifie SQLite sur Python 3.12 et 3.14, PostgreSQL, l’intégration avec le modèle multilingue et la pile Docker Compose. Le test Compose précharge le modèle dans le même volume que le web et utilise un fournisseur factice déclaré uniquement dans `compose.test.yaml`. Il n’appelle pas de fournisseur payant.
+
+Consulter [les exécutions du dépôt](https://github.com/H-devigner/adaptlearn-ai/actions) pour les résultats de la révision publiée. Les anciens rapports `*-report.md` décrivent les étapes intermédiaires ; ce document et docs/RAG.md décrivent la nouvelle architecture.
+
+Aucune clé payante n’a été utilisée et aucune VM cloud publique n’a été créée.

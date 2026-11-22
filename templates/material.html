@@ -1,41 +1,77 @@
 {% extends 'base.html' %}
 {% set material = production.material %}
-{% block title %}{{ material.title }}{% endblock %}
+{% block title %}
+  {{ material.title }}
+{% endblock %}
 {% block content %}
-<div class="page-heading">
-  <a class="text-link" href="{{ url_for('studio.index') }}">Retour au studio →</a>
-  <h1>{{ material.title }}</h1>
-  <p>{{ format_name }} · {{ 'Mode local extractif' if material.mode == 'local' else 'Mode LLM' }}</p>
-</div>
-<div class="actions">
-  {% if material.kind == 'quiz' %}<a class="button" href="{{ url_for('studio.quiz', generation_id=production.id) }}">Répondre au quiz</a>{% endif %}
-  <a class="text-link" href="{{ url_for('studio.download', generation_id=production.id) }}">Télécharger en JSON</a>
-</div>
-{% if material.kind == 'summary' %}
-  <div class="panel plain-text">{{ material.content }}</div>
-{% elif material.kind == 'flashcards' %}
-  <p>Ouvrez une fiche pour afficher son verso.</p>
-  {% for card in material.cards %}
-    <details class="panel"><summary>{{ card.front }}</summary><p class="plain-text">{{ card.back }}</p></details>
-  {% endfor %}
-{% else %}
-  <ol>
-  {% for question in material.questions %}
-    <li>
-      <p>{{ question.question }}</p>
-      <ul>{% for option in question.options %}<li>{{ option }}</li>{% endfor %}</ul>
-    </li>
-  {% endfor %}
-  </ol>
-{% endif %}
-<section aria-labelledby="sources-heading">
-  <h2 id="sources-heading">Extraits utilisés</h2>
-  <p>Le score de pertinence mesure la similarité des mots avec votre requête. L’exactitude du support reste à vérifier à partir de ces textes.</p>
-  {% for source in production.sources %}
-  <details class="panel">
-    <summary>{{ source.title }} · {{ 'Leçon Python' if source.document_id is string and source.document_id.startswith('course:') else 'Document personnel' }} · Extrait {{ source.chunk_index + 1 }} · Pertinence {{ '%.1f'|format(source.score * 100) }} %</summary>
-    <p class="plain-text">{{ source.text }}</p>
-  </details>
-  {% endfor %}
-</section>
+  <div class="page-heading">
+    <a class="text-link" href="{{ url_for('studio.index') }}">Retour au studio →</a>
+    <h1>
+      {{ material.title }}
+    </h1>
+    <p>
+      {{ format_name }} · {{ 'Génération historique (mode local)' if material.mode == 'local' else 'Mode LLM' }}
+    </p>
+  </div>
+  <div class="actions">
+    {% if material.kind == 'quiz' %}
+      <a class="button" href="{{ url_for('studio.quiz', generation_id=production.id) }}">Répondre au quiz</a>
+    {% endif %}
+    <a class="text-link" href="{{ url_for('studio.download', generation_id=production.id) }}">Télécharger en JSON</a>
+  </div>
+  {% if material.kind == 'summary' %}
+    <div class="panel plain-text">
+      {{ material.content }}
+    </div>
+  {% elif material.kind == 'flashcards' %}
+    <p>
+      Ouvrez une fiche pour afficher son verso.
+    </p>
+    {% for card in material.cards %}
+      <details class="panel">
+        <summary>
+          {{ card.front }}
+        </summary>
+        <p class="plain-text">
+          {{ card.back }}
+        </p>
+      </details>
+    {% endfor %}
+  {% else %}
+    <ol>
+      {% for question in material.questions %}
+        <li>
+          <p>
+            {{ question.question }}
+          </p>
+          <ul>
+            {% for option in question.options %}
+              <li>
+                {{ option }}
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+  <section aria-labelledby="sources-heading">
+    <h2 id="sources-heading">
+      Extraits utilisés
+    </h2>
+    <p>
+      Consultez ces extraits pour vérifier le contenu du support.
+    </p>
+    {% set score_label = 'Similarité sémantique' if material.get('retrieval_method') == 'semantic' else 'Score historique' %}
+    {% for source in production.sources %}
+      <details class="panel">
+        <summary>
+          [{{ loop.index }}] {{ source.title }} · {{ 'Leçon Python' if source.document_id is string and source.document_id.startswith('course:') else 'Document personnel' }} · {{ score_label }} {{ '%.3f'|format(source.score) }}
+        </summary>
+        <p class="plain-text">
+          {{ source.text }}
+        </p>
+      </details>
+    {% endfor %}
+  </section>
 {% endblock %}

@@ -7,3 +7,4 @@ instance/
 .env.*
 !.env.example
 .DS_Store
+.ruff_cache/

@@ -14,6 +14,7 @@ RUN pip install --no-cache-dir -r requirements-deploy.txt \
 COPY *.py ./
 COPY templates/ templates/
 COPY static/ static/
+COPY scripts/ scripts/
 
 USER adaptlearn
 EXPOSE 8000

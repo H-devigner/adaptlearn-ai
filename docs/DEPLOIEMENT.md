@@ -15,16 +15,20 @@ Exécutez `openssl rand -hex 32` trois fois et reportez une valeur distincte dan
 
 ```sh
 docker compose config --quiet
-docker compose up --build --wait
+docker compose build
+docker compose run --rm --no-deps web python scripts/download_model.py
+docker compose up --wait
 docker compose ps
 curl --fail http://127.0.0.1:5050/health
 ```
 
-Ouvrez `http://127.0.0.1:5050`, créez un compte et essayez une génération dans le studio. Le contrôle `/health` du site interroge PostgreSQL. Le contrôle du service IA vérifie son démarrage. Le mode local génère à partir des extraits retrouvés et fonctionne sans clé ni appel à un fournisseur.
+Le préchargement est nécessaire avant le premier usage du studio : le téléchargement du modèle peut dépasser le délai du worker web. Cette commande utilise le même utilisateur et le même volume que le serveur.
 
-Pour utiliser un modèle distant, renseignez `AI_MODE=llm`, `LLM_MODEL` et `LLM_API_KEY` dans `.env`. `LLM_BASE_URL` désigne la racine d’une API compatible OpenAI. Le service IA transmet au fournisseur la demande et les extraits utilisés comme contexte. Choisissez les documents en fonction des règles de traitement des données du fournisseur et de votre organisation. `LLM_TIMEOUT=45` fixe le délai fournisseur par défaut, en secondes. Appliquez les changements avec `docker compose up --wait`.
+Ouvrez `http://127.0.0.1:5050`, créez un compte et essayez une génération dans le studio. Le contrôle `/health` du site interroge PostgreSQL. Le contrôle du service IA vérifie son démarrage. Le studio utilise des embeddings locaux multilingues et exige un LLM configuré. Le premier usage peut télécharger le modèle d’embeddings ; le volume rag_data conserve les modèles et les index.
 
-Arrêtez la pile avec `docker compose down`. Le volume PostgreSQL conserve les données entre les démarrages. `docker compose down --volumes` efface le volume de la pile.
+Renseignez `AI_MODE=llm`, `LLM_MODEL` et `LLM_API_KEY` dans `.env`. Le générateur extractif a été retiré : une génération appelle toujours un LLM. `LLM_BASE_URL` désigne la racine d’une API compatible OpenAI prenant en charge le format JSON structuré. Pour Ollama sur l’hôte avec Docker Desktop, utilisez par exemple `http://host.docker.internal:11434/v1`, la clé conventionnelle `ollama` et un modèle déjà téléchargé. Sous Linux, configurez explicitement l’accès au serveur Ollama depuis le conteneur. Le service IA transmet au fournisseur la demande et les extraits utilisés comme contexte. Choisissez les documents en fonction des règles de traitement des données du fournisseur et de votre organisation. `LLM_TIMEOUT=45` fixe le délai fournisseur par défaut, en secondes. Appliquez les changements avec `docker compose up --wait`.
+
+Arrêtez la pile avec `docker compose down`. Les volumes PostgreSQL et rag_data conservent respectivement les données SQL et les index/modèles entre les démarrages. `docker compose down --volumes` efface les volumes de la pile, y compris les index et le cache des modèles.
 
 ## Publier sur une VM avec HTTPS
 
@@ -69,3 +73,7 @@ Avant une mise à jour, sauvegardez la base et notez la révision active. Déplo
 ## Limites du prototype
 
 Une installation Compose repose sur une seule VM. Le compte PostgreSQL utilisé par le site possède les droits du rôle d’initialisation de l’image officielle sur cette instance dédiée. Pour une exploitation durable, prévoyez un rôle applicatif moins privilégié, des sauvegardes testées et une supervision. Le guide décrit une procédure reproductible pour une VM disposant d’un domaine. Aucune instance cloud n’a été provisionnée dans le cadre du projet.
+
+## Tester la pile sans fournisseur payant
+
+`compose.test.yaml` est réservé à la CI. Il ajoute un fournisseur HTTP factice qui vérifie le raccordement du service IA ; ses réponses fixes ne constituent pas un RAG de démonstration. La configuration normale de l’application reste `compose.yaml`.

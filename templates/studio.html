@@ -1,49 +1,116 @@
 {% extends 'base.html' %}
-{% block title %}Studio pédagogique{% endblock %}
+{% block title %}
+  Studio pédagogique
+{% endblock %}
 {% block content %}
-<div class="page-heading">
-  <h1>Studio pédagogique</h1>
-  <p>Créez un support de révision à partir de vos documents et des leçons Python.</p>
-</div>
-<div class="form-layout">
-  <form class="panel" method="post" action="{{ url_for('studio.index') }}">
-    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
-    <label for="query">Sujet ou question</label>
-    <textarea id="query" name="query" rows="3" required maxlength="1000" aria-describedby="query-hint">{{ query }}</textarea>
-    <p class="hint" id="query-hint">Utilisez des termes présents dans les documents ou les leçons.</p>
-    <label for="kind">Support à créer</label>
-    <select id="kind" name="kind">
-      {% for value, label in formats.items() %}<option value="{{ value }}"{% if value == kind %} selected{% endif %}>{{ label }}</option>{% endfor %}
-    </select>
-    <label for="scope">Sources à rechercher</label>
-    <select id="scope" name="scope">
-      {% for value, label in scopes.items() %}<option value="{{ value }}"{% if value == scope %} selected{% endif %}>{{ label }}</option>{% endfor %}
-    </select>
-    <button type="submit" class="button">Générer le support</button>
-  </form>
-  <aside class="side-note">
-    <a class="text-link" href="{{ url_for('studio.documents') }}">Gérer mes documents →</a>
-  </aside>
-</div>
-<section aria-labelledby="history-heading">
-  <h2 id="history-heading">Mes productions</h2>
-  {% if history %}
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th scope="col">Sujet</th><th scope="col">Support</th><th scope="col">Mode</th><th scope="col">Création (UTC)</th></tr></thead>
-      <tbody>
-      {% for item in history %}
-      <tr>
-        <td><a href="{{ url_for('studio.material', generation_id=item.id) }}">{{ item.query }}</a></td>
-        <td>{{ formats[item.kind] }}</td>
-        <td>{{ 'Local extractif' if item.mode == 'local' else 'LLM' }}</td>
-        <td><time datetime="{{ item.created_at }}">{{ item.created_at[:16]|replace('T', ' ') }}</time></td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+  <div class="page-heading">
+    <h1>
+      Studio pédagogique
+    </h1>
+    <p>
+      Le Studio utilise un modèle local d’embeddings pour indexer vos sources et trouver les extraits dont le sens se rapproche de votre question. Un modèle de langage (LLM) compose le support à partir de ces extraits.
+    </p>
   </div>
-  {% else %}<p>Aucune production enregistrée.</p>{% endif %}
-</section>
+  <div class="form-layout">
+    <form class="panel" method="post" action="{{ url_for('studio.index') }}">
+      <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+      {% if error %}
+        <p class="error" role="alert">
+          {{ error }}
+        </p>
+      {% endif %}
+      <label for="query">Sujet ou question</label>
+      <textarea id="query" name="query" rows="3" required maxlength="1000" aria-describedby="query-hint">{{ query }}</textarea>
+      <p class="hint" id="query-hint">
+        Formulez le sujet ou la question dans vos propres mots.
+      </p>
+      <label for="kind">Support à créer</label>
+      <select id="kind" name="kind">
+        {% for value, label in formats.items() %}
+          <option value="{{ value }}"
+                  {% if value == kind %}
+                    selected
+                  {% endif %}
+          >{{ label }}</option>
+        {% endfor %}
+      </select>
+      <label for="scope">Sources à rechercher</label>
+      <select id="scope" name="scope">
+        {% for value, label in scopes.items() %}
+          <option value="{{ value }}"
+                  {% if value == scope %}
+                    selected
+                  {% endif %}
+          >{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="button">Générer le support</button>
+    </form>
+    <aside class="side-note">
+      {% if not embedding_configured %}
+        <p>
+          Configurez le modèle d’embeddings pour activer la recherche sémantique.
+        </p>
+      {% endif %}
+      {% if uses_ai_service %}
+        <p>
+          Le service IA configure le modèle de langage utilisé pour générer les supports.
+        </p>
+      {% elif not generation_configured %}
+        <p>
+          Configurez le modèle de langage et sa clé d’accès pour générer un support.
+        </p>
+      {% endif %}
+      <a class="text-link" href="{{ url_for('studio.documents') }}">Gérer mes documents →</a>
+    </aside>
+  </div>
+  <section aria-labelledby="history-heading">
+    <h2 id="history-heading">
+      Mes productions
+    </h2>
+    {% if history %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">
+                Sujet
+              </th>
+              <th scope="col">
+                Support
+              </th>
+              <th scope="col">
+                Mode
+              </th>
+              <th scope="col">
+                Création (UTC)
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in history %}
+              <tr>
+                <td>
+                  <a href="{{ url_for('studio.material', generation_id=item.id) }}">{{ item.query }}</a>
+                </td>
+                <td>
+                  {{ formats[item.kind] }}
+                </td>
+                <td>
+                  {{ 'Génération historique' if item.mode == 'local' else 'LLM' }}
+                </td>
+                <td>
+                  <time datetime="{{ item.created_at }}">{{ item.created_at[:16]|replace('T', ' ') }}</time>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p>
+        Aucune production enregistrée.
+      </p>
+    {% endif %}
+  </section>
 {% endblock %}

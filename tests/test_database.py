@@ -1,4 +1,5 @@
 """Invariants des tentatives, avec une véritable base SQLite temporaire."""
+
 import sqlite3
 import tempfile
 import unittest
@@ -6,8 +7,17 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from threading import Barrier
 
-from database import (add_document, connect, create_user, get_attempt, init_database,
-                      list_attempts, list_documents, save_attempt, save_generation)
+from database import (
+    add_document,
+    connect,
+    create_user,
+    get_attempt,
+    init_database,
+    list_attempts,
+    list_documents,
+    save_attempt,
+    save_generation,
+)
 
 
 class AttemptTests(unittest.TestCase):
@@ -22,20 +32,30 @@ class AttemptTests(unittest.TestCase):
         self.quiz_id = self.generation(self.user_id, 'quiz')
 
     def generation(self, user_id, kind):
-        return save_generation(self.database, user_id, 'Python', {'kind': kind, 'mode': 'local'}, [])
+        return save_generation(
+            self.database, user_id, 'Python', {'kind': kind, 'mode': 'local'}, []
+        )
 
     def test_saves_editorial_and_generated_attempts_for_owner(self):
         editorial = save_attempt(self.database, self.user_id, 'variables', self.result, [1, 0])
-        generated = save_attempt(self.database, self.user_id, None, self.result, [1, 0], self.quiz_id)
-        self.assertEqual(get_attempt(self.database, self.user_id, editorial)['course_id'], 'variables')
-        self.assertEqual(get_attempt(self.database, self.user_id, generated)['generation_id'], self.quiz_id)
+        generated = save_attempt(
+            self.database, self.user_id, None, self.result, [1, 0], self.quiz_id
+        )
+        self.assertEqual(
+            get_attempt(self.database, self.user_id, editorial)['course_id'], 'variables'
+        )
+        self.assertEqual(
+            get_attempt(self.database, self.user_id, generated)['generation_id'], self.quiz_id
+        )
         self.assertIsNone(get_attempt(self.database, self.other_id, generated))
 
     def test_attempt_requires_exactly_one_assessment(self):
         for course_id, generation_id in [(None, None), ('variables', self.quiz_id)]:
             with self.subTest(course_id=course_id, generation_id=generation_id):
                 with self.assertRaises(ValueError):
-                    save_attempt(self.database, self.user_id, course_id, self.result, [], generation_id)
+                    save_attempt(
+                        self.database, self.user_id, course_id, self.result, [], generation_id
+                    )
         self.assertEqual(list_attempts(self.database, self.user_id), [])
 
     def test_generated_attempt_requires_owned_quiz(self):
@@ -49,10 +69,9 @@ class AttemptTests(unittest.TestCase):
 
     def test_attempt_rejects_invalid_score_or_total(self):
         for score, total in [(-1, 2), (3, 2), (0, 0), (0, -1), (True, 2), (0, 2.0)]:
-            with self.subTest(score=score, total=total):
-                with self.assertRaises(ValueError):
-                    result = {**self.result, 'score': score, 'total': total}
-                    save_attempt(self.database, self.user_id, 'variables', result, [])
+            with self.subTest(score=score, total=total), self.assertRaises(ValueError):
+                result = {**self.result, 'score': score, 'total': total}
+                save_attempt(self.database, self.user_id, 'variables', result, [])
         self.assertEqual(list_attempts(self.database, self.user_id), [])
 
     def test_new_schema_enforces_exclusive_assessment(self):
@@ -61,7 +80,17 @@ class AttemptTests(unittest.TestCase):
                 with self.assertRaises(sqlite3.IntegrityError), connect(self.database) as db:
                     db.execute(
                         'INSERT INTO attempts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        ('attempt', self.user_id, course_id, generation_id, 1, 2, '[]', '[]', '2026-11-22'),
+                        (
+                            'attempt',
+                            self.user_id,
+                            course_id,
+                            generation_id,
+                            1,
+                            2,
+                            '[]',
+                            '[]',
+                            '2026-11-22',
+                        ),
                     )
 
 

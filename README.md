@@ -1,12 +1,12 @@
 # AdaptLearn AI
 
-Plateforme d’apprentissage adaptatif en français, développée progressivement avec un code Python organisé en modules simples. Elle associe cours, quiz, parcours personnalisés, recommandations, suivi de progression et génération de supports depuis des documents.
+Plateforme d’apprentissage adaptatif en français : comptes privés, cours Python, quiz corrigés, parcours personnalisé, recommandations et progression. Le studio produit des résumés, fiches et quiz avec un **RAG sémantique LangChain**, des **embeddings neuronaux locaux** et un **véritable LLM configurable**.
 
-**Le document à lire pour vérifier et corriger le projet est [EXPLICATION_PROJET.md](EXPLICATION_PROJET.md).**
+Lire [EXPLICATION_PROJET.md](EXPLICATION_PROJET.md) pour comprendre le code et [docs/RAG.md](docs/RAG.md) pour configurer le RAG.
 
-## Démarrage local
+## Lancer
 
-Python 3.12 ou supérieur recommandé (tests prévus sur 3.12 et 3.14).
+Python 3.12 ou supérieur recommandé.
 
 ```bash
 git clone https://github.com/H-devigner/adaptlearn-ai.git
@@ -14,86 +14,80 @@ cd adaptlearn-ai
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+python scripts/download_model.py
 python -m flask --app app run --port 5050
 ```
 
-Ouvrir **http://127.0.0.1:5050**, créer un compte puis compléter le profil. Aucun compte ni mot de passe prédéfini. Le mode local fonctionne sans clé API. Les données sont conservées dans `instance/adaptlearn.sqlite`, exclu de Git.
+Ouvrir http://127.0.0.1:5050 puis créer un compte. Les profils, cours et quiz éditoriaux fonctionnent sans fournisseur IA. **Le studio exige un LLM configuré** ; l’ancien générateur extractif a été supprimé.
 
-Pour utiliser les versions exactes de l’environnement vérifié, installer `requirements-lock.txt` à la place de `requirements.txt` (inclut les dépendances de déploiement).
+Les données SQLite, modèles et index sont locaux dans `instance/`, exclu de Git. Les données des versions précédentes sont conservées. Pour reproduire les versions de dépendances vérifiées : installer `requirements-lock.txt` (inclut aussi les dépendances de déploiement).
 
-## Fonctionnalités
+## Configurer le LLM
 
-| Étape | Fonction livrée |
-| --- | --- |
-| 1 | Profil apprenant persistant et catalogue |
-| 2 | Cinq leçons Python, quiz corrigés côté serveur et historique |
-| 3 | Parcours adaptatif : dernier score, seuil de maîtrise de 70 %, prérequis |
-| 4 | Résumés, fiches et quiz : mode local extractif et connecteur LLM configurable |
-| 5 | Import `.txt`, `.md`, PDF textuels ; recherche TF-IDF et extraits sources conservés |
-| 6 | Ressources classées selon difficultés, niveau et objectif, avec explications |
-| 7 | Scores, moyennes, maîtrise par cours et évolution chronologique |
-| 8 | Comptes privés, CSRF, PostgreSQL optionnel, service IA indépendant, Docker Compose et CI |
+Exemple Ollama installé localement :
 
-L’intégration LLM se vérifie avec un fournisseur configuré ; aucun appel payant n’est requis pour les tests. Les fichiers de déploiement cloud sont fournis ; aucune VM publique n’a été créée. Les détails des vérifications et limites figurent dans le document explicatif.
+```bash
+ollama pull qwen2.5:1.5b
+```
 
-## Studio et LLM
-
-Le mode par défaut `AI_MODE=local` découpe et sélectionne les textes, crée des fiches et des quiz à trous. **Il n’utilise pas de LLM.** Pour activer un fournisseur compatible Chat Completions, créer un `.env` local :
+Créer `.env` à la racine :
 
 ```dotenv
 AI_MODE=llm
-LLM_BASE_URL=https://api.openai.com/v1
-LLM_API_KEY=votre-cle-privee
-LLM_MODEL=identifiant-du-modele-de-votre-fournisseur
-LLM_TIMEOUT=45
+LLM_BASE_URL=http://127.0.0.1:11434/v1
+LLM_API_KEY=ollama
+LLM_MODEL=qwen2.5:1.5b
 ```
 
-Redémarrer l’application. La requête et les extraits retrouvés seront envoyés au fournisseur choisi. Le mode réel est affiché sur chaque production. Une erreur du fournisseur est signalée ; aucun repli local silencieux.
+Ollama doit être en cours d’exécution. Pour un fournisseur distant, remplacer l’URL, le modèle et la clé par ses paramètres. Aucun secret ne doit être suivi par Git. Redémarrer Flask après configuration.
 
-Le studio recherche dans les leçons intégrées, les documents du compte ou les deux. Les fichiers sont limités à 1 Mio, 50 000 caractères extraits et 30 documents par compte. Les PDF scannés sans texte nécessitent un OCR externe. Les productions sont exportables en JSON ; les corrigés de quiz ne sont pas inclus dans l’export public de l’entraînement.
+Le premier usage du studio télécharge le modèle d’embeddings multilingue FastEmbed. Il encode ensuite les documents sur la machine. Les passages sélectionnés sont envoyés uniquement au LLM configuré. Voir [la configuration détaillée](docs/RAG.md).
 
-## Architecture
+## Comment fonctionne le RAG
 
 ```text
-app.py          Configuration, accueil, profil et santé
- auth.py        Comptes, sessions et CSRF
- database.py    Stockage SQLite / PostgreSQL
- courses.py     Cinq leçons et leurs questions éditoriales
- pedagogy.py    Correction, adaptation, recommandations, statistiques
- learning.py    Routes cours, quiz, résultats, parcours et progression
- retrieval.py   Segmentation et recherche lexicale TF-IDF
- generation.py  Génération locale / connecteur LLM et validation
- ai_service.py  Service HTTP IA facultatif, protégé par jeton
- studio.py      Imports, productions privées et quiz générés
- templates/     Pages HTML Jinja
- static/        Styles CSS sans framework frontend
- tests/         Tests de comportement, sécurité et intégration
+Documents du compte + leçons autorisées
+  → Découpage LangChain adapté au modèle
+  → Embeddings neuronaux multilingues FastEmbed
+  → Index vectoriel LangChain persisté en JSON privé
+  → Recherche des passages par similarité cosinus
+  → Prompt LangChain + ChatOpenAI
+  → Support JSON validé, sauvegardé avec les sources [1], [2]…
 ```
 
-Le mode local exécute tout dans Flask. Le mode Compose sépare le web, le service IA et PostgreSQL. Le service IA et la base n’exposent pas de port sur l’hôte.
+Il n’y a plus de recherche TF-IDF ni de repli extractif. Les anciennes productions restent consultables avec un libellé historique. Le moteur de recommandations du parcours garde ses règles explicites (dernier score, prérequis, niveau et objectif).
+
+## Où lire le code
+
+| Module | Rôle |
+| --- | --- |
+| `app.py`, `auth.py` | Application, profil, comptes et sessions |
+| `database.py` | Stockage SQL paramétré SQLite / PostgreSQL |
+| `courses.py`, `pedagogy.py`, `learning.py` | Leçons, quiz, adaptation et statistiques |
+| `retrieval.py` | Découpage, embeddings et index vectoriel |
+| `generation.py` | Prompt LangChain, appel LLM et validation |
+| `studio.py` | Routes du studio, sauvegarde et consultation |
+| `document_import.py` | Extraction et validation texte/PDF |
+| `ai_client.py`, `ai_service.py` | Service IA indépendant optionnel |
+| `templates/`, `static/` | Pages HTML et styles CSS |
 
 ## Vérifier
 
 ```bash
-source .venv/bin/activate
 python -m unittest discover -s tests -v
-python -m compileall -q *.py tests
+python -m compileall -q *.py scripts tests
+RUN_SEMANTIC_TESTS=1 python -m unittest discover -s tests -p test_semantic_integration.py -v
+python scripts/verify_rag.py
 ```
 
-Le test PostgreSQL exige `TEST_DATABASE_URL` vers une base de test dédiée et `pip install -r requirements-deploy.txt`. Sans cette variable, il est explicitement ignoré. Les tests HTTP fournisseur utilisent un serveur factice local et n’appellent aucun LLM externe. Ils sont ignorés si l’environnement interdit l’ouverture d’un port local.
+La suite rapide utilise des doubles explicites. Le test sémantique télécharge et exécute le vrai modèle d’embeddings. Le dernier script effectue de vraies générations avec votre LLM et conserve les résultats dans `instance/rag-verification.json`.
 
-Les tests CI couvrent Python 3.12/3.14, PostgreSQL 17 et le démarrage Docker Compose. Voir l’onglet Actions pour le résultat de chaque exécution.
+La CI vérifie Python 3.12/3.14, PostgreSQL, Docker et le modèle multilingue. Dans le test Docker seulement, `compose.test.yaml` lance un fournisseur factice, sans clé payante. La configuration normale `compose.yaml` exige votre LLM.
 
-## Déployer et présenter
+## Guides
 
-- [Explication complète et liste de vérification](EXPLICATION_PROJET.md)
-- [Scénario de démonstration](docs/DEMONSTRATION.md)
-- [Déploiement Docker / VM cloud avec HTTPS](docs/DEPLOIEMENT.md)
-- [Conception initiale et huit étapes](docs/CONCEPTION.md)
-
-## Références techniques
-
-- [Flask : tutoriel et sécurité](https://flask.palletsprojects.com/en/stable/tutorial/)
-- [Psycopg : utilisation de PostgreSQL](https://www.psycopg.org/psycopg3/docs/basic/usage.html)
-- [Docker Compose : variables d’environnement](https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/)
-- [API Chat Completions](https://developers.openai.com/api/reference/resources/chat)
+- [Explication et liste de vérification](EXPLICATION_PROJET.md)
+- [Détails du RAG](docs/RAG.md)
+- [Déploiement Docker et cloud](docs/DEPLOIEMENT.md)
+- [Démonstration](docs/DEMONSTRATION.md)
+- [Résultats des vérifications](docs/VERIFICATION.md)

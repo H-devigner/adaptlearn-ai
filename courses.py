@@ -1,4 +1,5 @@
 """Catalogue des leçons Python et de leurs quiz éditoriaux."""
+
 from textwrap import dedent
 
 LEVELS = ('Débutant', 'Intermédiaire', 'Avancé')
@@ -35,21 +36,45 @@ COURSES = [
             de syntaxe signalée. Rétablissez le guillemet et relancez le programme.
             """).strip(),
         'questions': [
-            {'question': 'Quelle instruction affiche Bonjour ?',
-             'options': ['echo("Bonjour")', 'print("Bonjour")', '# Bonjour', '"Bonjour"'],
-             'answer': 1, 'explanation': 'Dans un fichier Python, print() affiche son argument.'},
-            {'question': 'Que fait Python de la ligne # Un premier programme ?',
-             'options': ['Il affiche cette ligne.', 'Il arrête le programme.',
-                         'Il demande une entrée.', 'Il ignore cette ligne.'],
-             'answer': 3, 'explanation': 'Hors d’une chaîne, # introduit un commentaire.'},
-            {'question': 'Que produit un fichier contenant print("A") puis print("B") ?',
-             'options': ['A puis B sur deux lignes', 'B puis A sur deux lignes', 'AB sur une ligne',
-                         'B seulement'],
-             'answer': 0, 'explanation': 'Les instructions s’exécutent dans l’ordre et chaque print() termine sa ligne.'},
-            {'question': 'Quelle commande lance bonjour.py si Python est accessible avec python3 ?',
-             'options': ['bonjour.py python3', 'print bonjour.py', 'python3 bonjour.py',
-                         'python3("bonjour.py")'],
-             'answer': 2, 'explanation': 'Le nom du fichier est passé en argument à l’interpréteur dans le terminal.'},
+            {
+                'question': 'Quelle instruction affiche Bonjour ?',
+                'options': ['echo("Bonjour")', 'print("Bonjour")', '# Bonjour', '"Bonjour"'],
+                'answer': 1,
+                'explanation': 'Dans un fichier Python, print() affiche son argument.',
+            },
+            {
+                'question': 'Que fait Python de la ligne # Un premier programme ?',
+                'options': [
+                    'Il affiche cette ligne.',
+                    'Il arrête le programme.',
+                    'Il demande une entrée.',
+                    'Il ignore cette ligne.',
+                ],
+                'answer': 3,
+                'explanation': 'Hors d’une chaîne, # introduit un commentaire.',
+            },
+            {
+                'question': 'Que produit un fichier contenant print("A") puis print("B") ?',
+                'options': [
+                    'A puis B sur deux lignes',
+                    'B puis A sur deux lignes',
+                    'AB sur une ligne',
+                    'B seulement',
+                ],
+                'answer': 0,
+                'explanation': 'Les instructions s’exécutent dans l’ordre et chaque print() termine sa ligne.',
+            },
+            {
+                'question': 'Quelle commande lance bonjour.py si Python est accessible avec python3 ?',
+                'options': [
+                    'bonjour.py python3',
+                    'print bonjour.py',
+                    'python3 bonjour.py',
+                    'python3("bonjour.py")',
+                ],
+                'answer': 2,
+                'explanation': 'Le nom du fichier est passé en argument à l’interpréteur dans le terminal.',
+            },
         ],
     },
     {
@@ -89,18 +114,30 @@ COURSES = [
             le nouveau montant.
             """).strip(),
         'questions': [
-            {'question': 'Quel est le type de prix_unitaire = 2.50 ?',
-             'options': ['str', 'int', 'float', 'list'],
-             'answer': 2, 'explanation': 'Un nombre écrit avec un point décimal est un float.'},
-            {'question': 'Quelle est la valeur de "2" + "3" ?',
-             'options': ['"23"', '5', '"5"', '23'],
-             'answer': 0, 'explanation': 'Avec deux chaînes, + assemble le texte et renvoie une chaîne.'},
-            {'question': 'Que vaut total après total = 3 * (2 + 1) ?',
-             'options': ['7', '6', '8', '9'],
-             'answer': 3, 'explanation': 'Les parenthèses imposent de calculer 2 + 1 avant la multiplication.'},
-            {'question': 'Que produit int("3") + 1 ?',
-             'options': ['"31"', '4', '"4"', '31'],
-             'answer': 1, 'explanation': 'int() convertit le texte en entier avant l’addition.'},
+            {
+                'question': 'Quel est le type de prix_unitaire = 2.50 ?',
+                'options': ['str', 'int', 'float', 'list'],
+                'answer': 2,
+                'explanation': 'Un nombre écrit avec un point décimal est un float.',
+            },
+            {
+                'question': 'Quelle est la valeur de "2" + "3" ?',
+                'options': ['"23"', '5', '"5"', '23'],
+                'answer': 0,
+                'explanation': 'Avec deux chaînes, + assemble le texte et renvoie une chaîne.',
+            },
+            {
+                'question': 'Que vaut total après total = 3 * (2 + 1) ?',
+                'options': ['7', '6', '8', '9'],
+                'answer': 3,
+                'explanation': 'Les parenthèses imposent de calculer 2 + 1 avant la multiplication.',
+            },
+            {
+                'question': 'Que produit int("3") + 1 ?',
+                'options': ['"31"', '4', '"4"', '31'],
+                'answer': 1,
+                'explanation': 'int() convertit le texte en entier avant l’addition.',
+            },
         ],
     },
     {
@@ -143,20 +180,40 @@ COURSES = [
             s’arrête sans afficher 0.
             """).strip(),
         'questions': [
-            {'question': 'Quelle comparaison teste l’égalité entre score et 70 ?',
-             'options': ['score = 70', 'score != 70', 'score > 70', 'score == 70'],
-             'answer': 3, 'explanation': '== compare des valeurs. Le signe = sert à affecter une valeur.'},
-            {'question': 'Quelles valeurs produit range(1, 4) ?',
-             'options': ['0, 1, 2, 3', '1, 2, 3, 4', '1, 2, 3', '2, 3, 4'],
-             'answer': 2, 'explanation': 'Le début est inclus et la borne de fin est exclue.'},
-            {'question': 'À quel moment le bloc else de l’exemple du score s’exécute-t-il ?',
-             'options': ['Quand score est inférieur à 70.', 'Quand score vaut 70.',
-                         'Quand score est supérieur à 70.', 'À chaque exécution.'],
-             'answer': 0, 'explanation': 'Le bloc else s’exécute quand score >= 70 est faux.'},
-            {'question': 'Pourquoi le compte à rebours avec while s’arrête-t-il ?',
-             'options': ['print() arrête la boucle.', 'restant atteint zéro.',
-                         'while n’exécute le bloc qu’une fois.', 'La valeur de restant augmente.'],
-             'answer': 1, 'explanation': 'Après trois diminutions, restant > 0 est faux et la boucle se termine.'},
+            {
+                'question': 'Quelle comparaison teste l’égalité entre score et 70 ?',
+                'options': ['score = 70', 'score != 70', 'score > 70', 'score == 70'],
+                'answer': 3,
+                'explanation': '== compare des valeurs. Le signe = sert à affecter une valeur.',
+            },
+            {
+                'question': 'Quelles valeurs produit range(1, 4) ?',
+                'options': ['0, 1, 2, 3', '1, 2, 3, 4', '1, 2, 3', '2, 3, 4'],
+                'answer': 2,
+                'explanation': 'Le début est inclus et la borne de fin est exclue.',
+            },
+            {
+                'question': 'À quel moment le bloc else de l’exemple du score s’exécute-t-il ?',
+                'options': [
+                    'Quand score est inférieur à 70.',
+                    'Quand score vaut 70.',
+                    'Quand score est supérieur à 70.',
+                    'À chaque exécution.',
+                ],
+                'answer': 0,
+                'explanation': 'Le bloc else s’exécute quand score >= 70 est faux.',
+            },
+            {
+                'question': 'Pourquoi le compte à rebours avec while s’arrête-t-il ?',
+                'options': [
+                    'print() arrête la boucle.',
+                    'restant atteint zéro.',
+                    'while n’exécute le bloc qu’une fois.',
+                    'La valeur de restant augmente.',
+                ],
+                'answer': 1,
+                'explanation': 'Après trois diminutions, restant > 0 est faux et la boucle se termine.',
+            },
         ],
     },
     {
@@ -197,19 +254,35 @@ COURSES = [
             avec "crayon", puis avec "gomme".
             """).strip(),
         'questions': [
-            {'question': 'Que renvoie double(3) dans la leçon ?',
-             'options': ['3', '6', '"6"', 'Aucune valeur'],
-             'answer': 1, 'explanation': 'La fonction évalue 2 * nombre et return renvoie le résultat.'},
-            {'question': 'Que vaut [4, 7, 10][0] ?',
-             'options': ['7', '10', '0', '4'],
-             'answer': 3, 'explanation': 'Le premier élément d’une liste se trouve à l’indice 0.'},
-            {'question': 'Que fait valeurs.append(6) ?',
-             'options': ['Ajoute 6 à la fin de valeurs.', 'Remplace le premier élément par 6.',
-                         'Retire l’élément situé à l’indice 6.', 'Trie les six premiers éléments.'],
-             'answer': 0, 'explanation': 'append() modifie la liste en y ajoutant un dernier élément.'},
-            {'question': 'Que produit stock.get("gomme", 0) si la clé gomme est absente ?',
-             'options': ['Une erreur', '"gomme"', '0', 'La première valeur du dictionnaire'],
-             'answer': 2, 'explanation': 'get() renvoie son deuxième argument quand la clé est absente.'},
+            {
+                'question': 'Que renvoie double(3) dans la leçon ?',
+                'options': ['3', '6', '"6"', 'Aucune valeur'],
+                'answer': 1,
+                'explanation': 'La fonction évalue 2 * nombre et return renvoie le résultat.',
+            },
+            {
+                'question': 'Que vaut [4, 7, 10][0] ?',
+                'options': ['7', '10', '0', '4'],
+                'answer': 3,
+                'explanation': 'Le premier élément d’une liste se trouve à l’indice 0.',
+            },
+            {
+                'question': 'Que fait valeurs.append(6) ?',
+                'options': [
+                    'Ajoute 6 à la fin de valeurs.',
+                    'Remplace le premier élément par 6.',
+                    'Retire l’élément situé à l’indice 6.',
+                    'Trie les six premiers éléments.',
+                ],
+                'answer': 0,
+                'explanation': 'append() modifie la liste en y ajoutant un dernier élément.',
+            },
+            {
+                'question': 'Que produit stock.get("gomme", 0) si la clé gomme est absente ?',
+                'options': ['Une erreur', '"gomme"', '0', 'La première valeur du dictionnaire'],
+                'answer': 2,
+                'explanation': 'get() renvoie son deuxième argument quand la clé est absente.',
+            },
         ],
     },
     {
@@ -219,7 +292,12 @@ COURSES = [
         'duration': 45,
         'description': 'Transformer des collections et produire des valeurs à la demande.',
         'topics': ['Compréhensions', 'yield', 'Itérateurs'],
-        'prerequisites': ['python-debut', 'variables', 'conditions-boucles', 'fonctions-collections'],
+        'prerequisites': [
+            'python-debut',
+            'variables',
+            'conditions-boucles',
+            'fonctions-collections',
+        ],
         'content': dedent("""\
             Une compréhension de liste construit une nouvelle liste à partir d’un
             itérable. L’expression placée au début indique quoi produire. Une
@@ -254,21 +332,45 @@ COURSES = [
             vide si vous le passez une deuxième fois à list().
             """).strip(),
         'questions': [
-            {'question': 'Que produit [n * n for n in range(6) if n % 2 == 0] ?',
-             'options': ['[0, 2, 4]', '[1, 9, 25]', '[0, 4, 16]', '[4, 16, 36]'],
-             'answer': 2, 'explanation': 'Le filtre garde 0, 2 et 4, dont les carrés sont 0, 4 et 16.'},
-            {'question': 'Quand une expression génératrice calcule-t-elle sa prochaine valeur ?',
-             'options': ['Quand on la demande, par exemple avec next().', 'À la fin du programme.',
-                         'Quand on déclare l’expression, avec toutes les valeurs.', 'Après son épuisement.'],
-             'answer': 0, 'explanation': 'Un générateur avance à la demande, par exemple dans une boucle for.'},
-            {'question': 'Que fait yield dans compte_a_rebours ?',
-             'options': ['Il redémarre la fonction.', 'Il renvoie toutes les valeurs à la fois.',
-                         'Il modifie le paramètre depart.', 'Il fournit une valeur et suspend l’exécution.'],
-             'answer': 3, 'explanation': 'La fonction reprend après le yield lorsqu’une autre valeur est demandée.'},
-            {'question': 'Que donne list() sur un générateur déjà épuisé ?',
-             'options': ['Une copie de toutes les valeurs', 'Une liste vide',
-                         'La dernière valeur produite', 'Un générateur neuf'],
-             'answer': 1, 'explanation': 'Un générateur épuisé ne produit plus de valeurs. Il faut en créer un autre pour recommencer.'},
+            {
+                'question': 'Que produit [n * n for n in range(6) if n % 2 == 0] ?',
+                'options': ['[0, 2, 4]', '[1, 9, 25]', '[0, 4, 16]', '[4, 16, 36]'],
+                'answer': 2,
+                'explanation': 'Le filtre garde 0, 2 et 4, dont les carrés sont 0, 4 et 16.',
+            },
+            {
+                'question': 'Quand une expression génératrice calcule-t-elle sa prochaine valeur ?',
+                'options': [
+                    'Quand on la demande, par exemple avec next().',
+                    'À la fin du programme.',
+                    'Quand on déclare l’expression, avec toutes les valeurs.',
+                    'Après son épuisement.',
+                ],
+                'answer': 0,
+                'explanation': 'Un générateur avance à la demande, par exemple dans une boucle for.',
+            },
+            {
+                'question': 'Que fait yield dans compte_a_rebours ?',
+                'options': [
+                    'Il redémarre la fonction.',
+                    'Il renvoie toutes les valeurs à la fois.',
+                    'Il modifie le paramètre depart.',
+                    'Il fournit une valeur et suspend l’exécution.',
+                ],
+                'answer': 3,
+                'explanation': 'La fonction reprend après le yield lorsqu’une autre valeur est demandée.',
+            },
+            {
+                'question': 'Que donne list() sur un générateur déjà épuisé ?',
+                'options': [
+                    'Une copie de toutes les valeurs',
+                    'Une liste vide',
+                    'La dernière valeur produite',
+                    'Un générateur neuf',
+                ],
+                'answer': 1,
+                'explanation': 'Un générateur épuisé ne produit plus de valeurs. Il faut en créer un autre pour recommencer.',
+            },
         ],
     },
 ]

@@ -9,6 +9,12 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-adaptlearn}:${POSTGRES_PASSWORD:?Renseignez POSTGRES_PASSWORD dans .env}@db:5432/${POSTGRES_DB:-adaptlearn}
       AI_SERVICE_URL: http://ai:8001
       AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?Renseignez AI_SERVICE_TOKEN dans .env}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+      EMBEDDING_CACHE_DIR: /app/instance/models
+      RAG_INDEX_DIR: /app/instance/rag
+      RAG_MIN_SCORE: ${RAG_MIN_SCORE:-0.35}
+    volumes:
+      - rag_data:/app/instance
     ports:
       - '127.0.0.1:5050:8000'
     networks:
@@ -31,7 +37,7 @@ services:
     command: ['gunicorn', '--bind', '0.0.0.0:8001', '--workers', '2', '--timeout', '75', 'ai_service:create_app()']
     environment:
       AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?Renseignez AI_SERVICE_TOKEN dans .env}
-      AI_MODE: ${AI_MODE:-local}
+      AI_MODE: ${AI_MODE:-llm}
       LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_MODEL: ${LLM_MODEL:-}
@@ -68,3 +74,4 @@ networks:
 
 volumes:
   postgres_data:
+  rag_data:
