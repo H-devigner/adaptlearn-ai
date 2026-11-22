@@ -23,7 +23,7 @@ La [première exécution de la version complète](https://github.com/H-devigner/
 - Véritable test de stockage et d’isolation sur PostgreSQL 17.
 - Construction de l’image, démarrage des trois services Docker Compose, vérification du web connecté à PostgreSQL et génération authentifiée sur le réseau privé du service IA.
 
-Les trois corrections ultérieures issues de la revue sont couvertes localement : réponses multiples au quiz éditorial, validation UUID des routes privées et traitement des refus métier du service IA. Une nouvelle exécution est déclenchée à la publication de ces corrections. Consulter [la liste des exécutions](https://github.com/H-devigner/adaptlearn-ai/actions) pour la révision la plus récente.
+Les trois corrections ultérieures issues de la revue sont couvertes localement : réponses multiples au quiz éditorial, validation UUID des routes privées et traitement des refus métier du service IA. La [seconde exécution complète](https://github.com/H-devigner/adaptlearn-ai/actions/runs/45039097650), sur la révision corrigée `0e78601`, a également réussi dans les quatre jobs : SQLite Python 3.12/3.14, PostgreSQL 17 et pile Compose. Le code de la livraison finale est identique à cette révision ; les modifications suivantes concernent uniquement le présent compte rendu.
 
 ## Revue et démonstration
 
