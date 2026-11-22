@@ -6,7 +6,7 @@ Lire [EXPLICATION_PROJET.md](EXPLICATION_PROJET.md) pour comprendre le code et [
 
 ## Lancer
 
-Python 3.12 ou supérieur recommandé.
+Pour un premier clonage, installer Git, Python 3.12 ou supérieur (3.12 recommandé) et [Ollama](https://docs.ollama.com/quickstart). Le lancement local utilise SQLite : Docker et PostgreSQL ne sont pas nécessaires.
 
 ```bash
 git clone https://github.com/H-devigner/adaptlearn-ai.git
@@ -14,11 +14,11 @@ cd adaptlearn-ai
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python scripts/download_model.py
-python -m flask --app app run --port 5050
 ```
 
-Ouvrir http://127.0.0.1:5050 puis créer un compte. Les profils, cours et quiz éditoriaux fonctionnent sans fournisseur IA. **Le studio exige un LLM configuré** ; l’ancien générateur extractif a été supprimé.
+Ces commandes utilisent un terminal macOS/Linux. Sous Windows PowerShell, créer l’environnement avec `py -3.12 -m venv .venv`, puis l’activer avec `.venv\Scripts\Activate.ps1`.
+
+Configurer ensuite Ollama et `.env` comme indiqué ci-dessous, avant de lancer le studio. Les profils, cours et quiz éditoriaux fonctionnent sans fournisseur IA. **Le studio exige un LLM configuré** ; l’ancien générateur extractif a été supprimé.
 
 Les données SQLite, modèles et index sont locaux dans `instance/`, exclu de Git. Les données des versions précédentes sont conservées. Pour reproduire les versions de dépendances vérifiées : installer `requirements-lock.txt` (inclut aussi les dépendances de déploiement).
 
@@ -26,11 +26,13 @@ Les données SQLite, modèles et index sont locaux dans `instance/`, exclu de Gi
 
 Exemple Ollama installé localement :
 
+Ouvrir l’application Ollama. Si aucun serveur n’est déjà actif, exécuter `ollama serve` dans un autre terminal et le laisser ouvert. Dans le terminal du projet, télécharger le modèle :
+
 ```bash
 ollama pull qwen2.5:1.5b
 ```
 
-Créer `.env` à la racine :
+Depuis la racine du projet, copier l’exemple avec `cp .env.example .env` (PowerShell : `Copy-Item .env.example .env`), puis modifier les quatre valeurs suivantes dans `.env` :
 
 ```dotenv
 AI_MODE=llm
@@ -39,7 +41,20 @@ LLM_API_KEY=ollama
 LLM_MODEL=qwen2.5:1.5b
 ```
 
-Ollama doit être en cours d’exécution. Pour un fournisseur distant, remplacer l’URL, le modèle et la clé par ses paramètres. Aucun secret ne doit être suivi par Git. Redémarrer Flask après configuration.
+Ollama doit être en cours d’exécution. La valeur `ollama` est un paramètre conventionnel du client, pas une clé payante. Pour un lancement local en développement, les secrets Docker/production de l’exemple peuvent rester vides : une clé de session locale est créée automatiquement. Pour un fournisseur distant, remplacer l’URL, le modèle et la clé par ses paramètres. Aucun secret ne doit être suivi par Git. Redémarrer Flask après configuration.
+
+Pour un premier clonage, utiliser le port Ollama standard **11434**. Le port **11435** cité dans le guide RAG correspond à un serveur de test préparé sur la machine d’origine ; il n’est pas démarré par le clonage.
+
+Dans le terminal du projet, avec l’environnement virtuel actif :
+
+```bash
+python scripts/download_model.py
+python -m flask --app app run --port 5050
+```
+
+Ouvrir **http://127.0.0.1:5050**, créer un compte puis compléter le profil. La base SQLite et ses tables sont créées automatiquement ; il n’existe pas de compte par défaut. Garder le terminal Flask ouvert. `Ctrl+C` arrête le serveur.
+
+Lors d’un lancement ultérieur, il suffit de démarrer Ollama, réactiver `.venv` et relancer la commande Flask. Il n’est pas nécessaire de recloner ni de retélécharger les modèles déjà présents.
 
 Le premier usage du studio télécharge le modèle d’embeddings multilingue FastEmbed. Il encode ensuite les documents sur la machine. Les passages sélectionnés sont envoyés uniquement au LLM configuré. Voir [la configuration détaillée](docs/RAG.md).
 

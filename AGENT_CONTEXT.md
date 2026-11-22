@@ -16,7 +16,7 @@ This file records every user request in this conversation and the substance of e
 - The user wants **simple, understandable code**, an application they can explain in a project progress presentation, and documentation they can review and correct.
 - The user explicitly requested a **real RAG**, suggested LangChain, asked for code simplification, and authorized pushing the changes to GitHub.
 - The user subsequently requested that the repository be made **public**. This was done and anonymous HTTP access returned 200. Do not treat the earlier private-repository answers as the current visibility.
-- No new application feature has been specified after the RAG delivery. The user has requested that this file remain a living conversation record for future agents.
+- No new application feature has been specified after the RAG delivery. The user has requested that this file remain a living conversation record for future agents; the latest question concerns setup from a fresh clone.
 
 ### Read these existing documents instead of reconstructing the project
 
@@ -298,6 +298,25 @@ with connect(path) as db:
 - Recorded this instruction in the working agreement and added the current exchange.
 - Will append future user requests and answer summaries, record decisions and relevant project changes, and sync the updates to GitHub.
 - Application behavior is unchanged; this is a documentation-only update.
+
+### Exchange 13 — setup from a fresh clone
+
+**User:**
+
+> can u tell me how to setup the project for first clonned state
+
+**Assistant response:**
+
+- Explained a local setup using Git, Python 3.12+ and Ollama, with SQLite created automatically; Docker/PostgreSQL are not required for this path.
+- Gave the sequence: clone the public repository, enter its directory, create/activate `.venv`, and install `requirements.txt`.
+- Start the Ollama application or run `ollama serve` in another terminal if no server is active, then download `qwen2.5:1.5b` with `ollama pull`.
+- Copy `.env.example` to a new `.env` and configure `AI_MODE=llm`, `LLM_BASE_URL=http://127.0.0.1:11434/v1`, the conventional non-secret Ollama client value, and `LLM_MODEL=qwen2.5:1.5b`.
+- Clarified that first-clone instructions use the normal Ollama port **11434**; the existing-machine test port **11435** is not automatically prepared by cloning.
+- Preload embeddings with `python scripts/download_model.py`, then start `python -m flask --app app run --port 5050`.
+- Open `http://127.0.0.1:5050`, create a new account and complete the profile. No default account or manual SQL initialization is needed.
+- Explained that `.env`, the local database, index and weights are not cloned; initial model downloads require internet access. Later runs reuse the existing local files.
+- Provided the standard test command and the optional real RAG verification script. Small-model outputs still require educational review.
+- Updated the README's fresh-clone instructions and this ongoing record. This is a documentation-only change; it does not install a second copy or modify application behavior.
 
 ## 4. Current implementation map for the next agent
 
