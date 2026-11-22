@@ -41,7 +41,7 @@ def main():
     materials = {}
     for kind in ('summary', 'flashcards', 'quiz'):
         materials[kind] = generate_material(kind, QUERY, sources, config)
-        print(f'Génération réelle {kind} : valide.', flush=True)
+        print(f'Génération réelle {kind} : format JSON valide.', flush=True)
     output = Path('instance/rag-verification.json')
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(

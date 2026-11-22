@@ -22,6 +22,8 @@ Un serveur Ollama dédié au projet a été lancé sur `127.0.0.1:11435`, avec s
 
 Ses essais de quiz sont peu fiables : des choix en double et un mauvais indice ont été observés. Les contrôles n’ont pas été assouplis pour accepter ces réponses. Le dernier quiz invalide est refusé explicitement. Le guide recommande un modèle plus capable pour la présentation et une relecture pédagogique dans tous les cas.
 
+Un second essai avec **`qwen2.5:1.5b`** a terminé les trois formats de bout en bout avec les vrais embeddings et le vrai LLM local. Le résultat est conservé dans `instance/rag-verification.json`. Le format JSON est valide ; la relecture a néanmoins trouvé une confusion factuelle dans le résumé (rôle des panneaux et de l’onduleur) et une question de quiz répétée. Ces observations sont des limites de qualité du petit modèle, pas une preuve d’exactitude pédagogique. Choisir un modèle plus capable et relire les productions avant de les présenter comme des contenus validés.
+
 Les trois formats sont couverts avec un vrai transport HTTP de test et un schéma JSON strict Pydantic. Cela vérifie leur raccordement et la validation, sans prétendre mesurer la qualité générale d’un modèle.
 
 ## Revue indépendante

@@ -123,3 +123,13 @@ Ce script utilise de vrais embeddings et effectue trois générations réelles. 
 - [Modèles FastEmbed pris en charge](https://qdrant.github.io/fastembed/examples/Supported_Models/)
 - [Modèle multilingue MiniLM](https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2)
 - [ChatOpenAI](https://docs.langchain.com/oss/python/integrations/chat/openai)
+
+## Configuration préparée sur cette machine
+
+Le dossier local contient un `.env` privé configuré pour `qwen2.5:1.5b` sur le port Ollama dédié **11435**. Les modèles Ollama de cet essai sont dans `instance/ollama`. Pour redémarrer ce serveur depuis la racine du projet :
+
+```bash
+OLLAMA_HOST=127.0.0.1:11435 OLLAMA_MODELS="$PWD/instance/ollama" ollama serve
+```
+
+La configuration standard des exemples utilise le port Ollama 11434 ; le port 11435 évite de modifier une éventuelle installation personnelle déjà présente. Les modèles ne sont pas inclus dans le dépôt GitHub.

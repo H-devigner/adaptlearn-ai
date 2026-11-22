@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt requirements-deploy.txt ./
 RUN pip install --no-cache-dir -r requirements-deploy.txt \
     && groupadd -r adaptlearn \
-    && useradd -r -g adaptlearn -s /usr/sbin/nologin adaptlearn \
+    && useradd -r --create-home -g adaptlearn -s /usr/sbin/nologin adaptlearn \
     && install -d -o adaptlearn -g adaptlearn /app/instance
 
 COPY *.py ./
