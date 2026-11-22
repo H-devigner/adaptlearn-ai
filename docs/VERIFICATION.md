@@ -24,6 +24,8 @@ Ses essais de quiz sont peu fiables : des choix en double et un mauvais indice o
 
 Un second essai avec **`qwen2.5:1.5b`** a terminé les trois formats de bout en bout avec les vrais embeddings et le vrai LLM local. Le résultat est conservé dans `instance/rag-verification.json`. Le format JSON est valide ; la relecture a néanmoins trouvé une confusion factuelle dans le résumé (rôle des panneaux et de l’onduleur) et une question de quiz répétée. Ces observations sont des limites de qualité du petit modèle, pas une preuve d’exactitude pédagogique. Choisir un modèle plus capable et relire les productions avant de les présenter comme des contenus validés.
 
+Un parcours supplémentaire via les vraies routes Flask a réussi : inscription avec CSRF, import d’un document, embeddings, génération Ollama, écriture SQLite, affichage et export privé. Cet essai utilise une base et un index temporaires, sans modifier les données personnelles du compte de démonstration.
+
 Les trois formats sont couverts avec un vrai transport HTTP de test et un schéma JSON strict Pydantic. Cela vérifie leur raccordement et la validation, sans prétendre mesurer la qualité générale d’un modèle.
 
 ## Revue indépendante
@@ -43,6 +45,6 @@ La purge ne garantit pas l’effacement instantané des fichiers réécrits par 
 
 Le workflow vérifie SQLite sur Python 3.12 et 3.14, PostgreSQL, l’intégration avec le modèle multilingue et la pile Docker Compose. Le test Compose précharge le modèle dans le même volume que le web et utilise un fournisseur factice déclaré uniquement dans `compose.test.yaml`. Il n’appelle pas de fournisseur payant.
 
-Consulter [les exécutions du dépôt](https://github.com/H-devigner/adaptlearn-ai/actions) pour les résultats de la révision publiée. Les anciens rapports `*-report.md` décrivent les étapes intermédiaires ; ce document et docs/RAG.md décrivent la nouvelle architecture.
+La [CI de la révision corrigée 47b173b](https://github.com/H-devigner/adaptlearn-ai/actions/runs/45054730559) a réussi dans les cinq jobs : SQLite Python 3.12 et 3.14, PostgreSQL 17, vrai modèle multilingue et pile Docker avec préchargement. Le code de la livraison finale est identique à cette révision ; les changements suivants concernent le présent compte rendu et le plan. Les anciens rapports `*-report.md` décrivent les étapes intermédiaires ; ce document et docs/RAG.md décrivent la nouvelle architecture.
 
 Aucune clé payante n’a été utilisée et aucune VM cloud publique n’a été créée.
