@@ -107,6 +107,21 @@ class StudioTests(unittest.TestCase):
         self.assertEqual(list_documents(self.database, user_id), [])
         self.assertIn('Titre confidentiel', self.client.get(response.location).get_data(as_text=True))
 
+    def test_malformed_private_ids_return_404_before_sql_lookup(self):
+        self.register(self.client)
+        with patch('studio.get_generation', return_value=None) as get_generation, \
+             patch('studio.remove_document', return_value=False) as remove_document:
+            for identifier in ('abc', 'abc%00def'):
+                with self.subTest(identifier=identifier):
+                    base = f'/productions/{identifier}'
+                    for suffix in ('', '/export.json', '/quiz'):
+                        self.assertEqual(self.client.get(base + suffix).status_code, 404)
+                    self.assertEqual(self.post(self.client, base + '/quiz', {'q0': '0'}).status_code, 404)
+                    delete_path = f'/documents/{identifier}/supprimer'
+                    self.assertEqual(self.post(self.client, delete_path, {}).status_code, 404)
+        get_generation.assert_not_called()
+        remove_document.assert_not_called()
+
     def test_text_file_import_and_input_limits(self):
         user_id = self.register(self.client)
         cases = [('', EXCERPT), ('T' * 501, EXCERPT), ('Titre\0', EXCERPT), ('Titre', 'Énergie\0solaire'),
@@ -229,3 +244,18 @@ class StudioTests(unittest.TestCase):
             self.assertEqual(self.generate(self.client).status_code, 502)
         self.assertTrue(redirect_body.closed)
         self.assertNotIn('/productions/', self.client.get('/studio').get_data(as_text=True))
+
+    def test_service_input_errors_display_safe_user_feedback(self):
+        self.register(self.client)
+        self.import_document(self.client)
+        self.app.config.update(AI_SERVICE_URL='http://ai:8001', AI_SERVICE_TOKEN='service-secret')
+        for status, feedback in [(400, 'Reformulez'), (413, 'taille')]:
+            with self.subTest(status=status):
+                upstream_body = io.BytesIO(b'{"error":"service-secret"}')
+                failure = HTTPError('http://ai:8001/generate', status, 'service-secret', {}, upstream_body)
+                with patch('studio.urlopen', side_effect=failure):
+                    response = self.generate(self.client, kind='quiz')
+                self.assertEqual(response.status_code, 400)
+                self.assertIn(feedback, response.get_data(as_text=True))
+                self.assertNotIn('service-secret', response.get_data(as_text=True))
+                self.assertTrue(upstream_body.closed)

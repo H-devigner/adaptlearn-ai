@@ -107,6 +107,10 @@ def _service_material(kind, query, sources, config):
             body = remote.read(MAX_SERVICE_RESPONSE_BYTES + 1)
     except HTTPError as error:
         error.close()
+        if error.code == 400:
+            raise ValueError('Le contexte ne permet pas de créer ce support. Reformulez la requête ou choisissez d’autres sources.') from None
+        if error.code == 413:
+            raise ValueError('Les extraits dépassent la taille acceptée par le service IA. Choisissez d’autres sources.') from None
         raise GenerationError('Le service IA a refusé la demande.') from None
     except (OSError, TypeError, ValueError, http.client.HTTPException):
         raise GenerationError('Impossible de joindre le service IA ou délai dépassé.') from None
@@ -119,7 +123,7 @@ def _service_material(kind, query, sources, config):
 
 
 def _owned_generation(generation_id):
-    record = get_generation(current_app.config['DATABASE'], g.user['id'], generation_id)
+    record = get_generation(current_app.config['DATABASE'], g.user['id'], str(generation_id))
     if record is None:
         abort(404)
     return record
@@ -193,15 +197,15 @@ def documents():
                            title=title[:MAX_TITLE_LENGTH], content=content[:MAX_DOCUMENT_LENGTH], error=error), 400 if error else 200
 
 
-@bp.post('/documents/<document_id>/supprimer')
+@bp.post('/documents/<uuid:document_id>/supprimer')
 @login_required
 def delete_document(document_id):
-    if not remove_document(current_app.config['DATABASE'], g.user['id'], document_id):
+    if not remove_document(current_app.config['DATABASE'], g.user['id'], str(document_id)):
         abort(404)
     return redirect(url_for('studio.documents'))
 
 
-@bp.get('/productions/<generation_id>')
+@bp.get('/productions/<uuid:generation_id>')
 @login_required
 def material(generation_id):
     record = _owned_generation(generation_id)
@@ -209,7 +213,7 @@ def material(generation_id):
     return render_template('material.html', production=record, format_name=FORMATS[record['kind']])
 
 
-@bp.get('/productions/<generation_id>/export.json')
+@bp.get('/productions/<uuid:generation_id>/export.json')
 @login_required
 def download(generation_id):
     record = _owned_generation(generation_id)
@@ -219,7 +223,7 @@ def download(generation_id):
     return response
 
 
-@bp.route('/productions/<generation_id>/quiz', methods=['GET', 'POST'])
+@bp.route('/productions/<uuid:generation_id>/quiz', methods=['GET', 'POST'])
 @login_required
 def quiz(generation_id):
     record = _owned_generation(generation_id)
@@ -238,7 +242,7 @@ def quiz(generation_id):
             error = str(exception)
         else:
             attempt_id = save_attempt(current_app.config['DATABASE'], g.user['id'], None, result, answers,
-                                      generation_id=generation_id)
+                                      generation_id=record['id'])
             return redirect(url_for('learning.result', attempt_id=attempt_id))
     return render_template('quiz.html', title=support['title'], questions=_public_material(support)['questions'],
                            error=error, generated=True), 400 if error else 200

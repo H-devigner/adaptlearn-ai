@@ -36,6 +36,14 @@ class LearningTests(unittest.TestCase):
             user_id = session['user_id']
         self.assertEqual(list_attempts(self.path, user_id), [])
 
+    def test_multiple_answers_for_one_question_are_rejected(self):
+        data = {'q' + str(i): '0' for i in range(len(COURSES[0]['questions']))}
+        data['q0'] = ['0', '1']
+        response = self.client.post('/cours/python-debut/quiz', data=data)
+        self.assertEqual(response.status_code, 400)
+        with self.client.session_transaction() as session:
+            self.assertEqual(list_attempts(self.path, session['user_id']), [])
+
     def test_results_belong_to_one_account(self):
         course = COURSES[0]
         response = self.client.post('/cours/python-debut/quiz', data={
@@ -43,6 +51,10 @@ class LearningTests(unittest.TestCase):
         other = self.app.test_client()
         other.post('/inscription', data={'username': 'amine', 'password': 'Une phrase test 123!'})
         self.assertEqual(other.get(response.location).status_code, 404)
+
+    def test_invalid_result_identifiers_return_not_found(self):
+        for identifier in ['invalide', 'test%00null']:
+            self.assertEqual(self.client.get('/resultats/' + identifier).status_code, 404)
 
     def test_lesson_and_empty_dashboard(self):
         for url in ['/cours/python-debut', '/cours/python-debut/quiz', '/parcours', '/ressources', '/progression']:

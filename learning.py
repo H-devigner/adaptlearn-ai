@@ -33,7 +33,10 @@ def quiz(course_id):
         abort(404)
     error = None
     if request.method == 'POST':
-        answers = [request.form.get(f'q{i}', '') for i in range(len(course['questions']))]
+        answers = []
+        for index in range(len(course['questions'])):
+            values = request.form.getlist(f'q{index}')
+            answers.append(values[0] if len(values) == 1 else '')
         try:
             result = grade_quiz(course['questions'], answers)
         except ValueError as exception:
@@ -48,10 +51,10 @@ def quiz(course_id):
                            error=error, generated=False), 400 if error else 200
 
 
-@bp.get('/resultats/<attempt_id>')
+@bp.get('/resultats/<uuid:attempt_id>')
 @login_required
 def result(attempt_id):
-    attempt = get_attempt(current_app.config['DATABASE'], g.user['id'], attempt_id)
+    attempt = get_attempt(current_app.config['DATABASE'], g.user['id'], str(attempt_id))
     if not attempt:
         abort(404)
     course = get_course(attempt['course_id']) if attempt['course_id'] else None
